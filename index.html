@@ -186,31 +186,25 @@
             margin-bottom: 15px;
         }
         
-        /* Estilos mejorados para controles deslizantes */
-        .range-container input[type="range"] {
-            flex: 1;
-            height: 10px;
+        /* MEJORA: Diseño de controles deslizantes mejorado */
+        input[type="range"] {
             -webkit-appearance: none;
+            height: 12px;
             background: linear-gradient(to right, #e0e0e0, #d0d0d0);
             border-radius: 10px;
             outline: none;
-            box-shadow: inset 0 1px 4px rgba(0,0,0,0.1);
-            transition: all 0.3s;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
         
-        .range-container input[type="range"]::-webkit-slider-thumb {
+        input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-            border: 3px solid white;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            border: 2px solid white;
             transition: all 0.2s;
-        }
-        
-        .range-container input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
         }
         
         #minTempRange::-webkit-slider-thumb { 
@@ -843,6 +837,70 @@
             font-weight: 600;
             margin-left: 10px;
         }
+        
+        .decimal-hint {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        /* Pestañas para cambiar entre modos */
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            background: #e0e0e0;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        /* Secciones separadas */
+        .file-section {
+            display: none;
+        }
+        
+        .file-section.active {
+            display: block;
+        }
+        
+        /* Nuevos estilos para visualización elástica */
+        .elastic-preview {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        
+        .elastic-demo {
+            width: 20px;
+            height: 10px;
+            background: var(--elastic);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            animation: elastic-pulse 1.5s infinite;
+            animation-delay: calc(var(--i) * 0.2s);
+        }
+        
+        @keyframes elastic-pulse {
+            0% { transform: scaleX(1); }
+            50% { transform: scaleX(0.4); }
+            100% { transform: scaleX(1); }
+        }
     </style>
 </head>
 <body>
@@ -874,39 +932,72 @@
                     <li>Ajuste los parámetros de deformación con los nuevos controles</li>
                     <li>Visualice los cambios en tiempo real en el gráfico</li>
                     <li>Descargue el archivo modificado en el formato deseado</li>
+                    <li>Usa <strong>comas</strong> como separador decimal (ej: 23,5)</li>
                 </ul>
+            </div>
+            
+            <!-- Pestañas para cambiar entre modos -->
+            <div class="tab-container">
+                <div class="tab active" data-tab="excel">Excel</div>
+                <div class="tab" data-tab="csv">CSV/TXT</div>
+            </div>
+            
+            <!-- Sección para Excel -->
+            <div id="excelSection" class="file-section active">
+                <div class="control-group">
+                    <h2><i class="fas fa-file-excel"></i> Carga de Archivos Excel</h2>
+                    <div class="input-group">
+                        <label for="excelFileInput"><i class="fas fa-file-export"></i> Archivo Excel (.xlsx, .xlsm):</label>
+                        <input type="file" id="excelFileInput" accept=".xlsx,.xlsm">
+                        <div class="decimal-hint">
+                            <i class="fas fa-info-circle"></i> Los archivos Excel deben tener valores numéricos en las celdas
+                        </div>
+                    </div>
+                    
+                    <div class="sheet-selection">
+                        <div class="input-group">
+                            <label for="sheetSelect"><i class="fas fa-layer-group"></i> Hoja:</label>
+                            <select id="sheetSelect">
+                                <option value="">-- Seleccionar --</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="startRow"><i class="fas fa-sort-numeric-down"></i> Fila Inicial:</label>
+                            <input type="number" id="startRow" min="1" value="1">
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container" id="excelProgressContainer">
+                        <div class="progress-bar" id="excelProgressBar"></div>
+                    </div>
+                    <button id="loadExcelBtn"><i class="fas fa-file-import"></i> Cargar Datos Excel</button>
+                    <div id="excelStatus" class="status-message">Esperando archivo Excel</div>
+                </div>
+            </div>
+            
+            <!-- Sección para CSV/TXT -->
+            <div id="csvSection" class="file-section">
+                <div class="control-group">
+                    <h2><i class="fas fa-file-csv"></i> Carga de Archivos CSV/TXT</h2>
+                    <div class="input-group">
+                        <label for="csvFileInput"><i class="fas fa-file-export"></i> Archivo CSV o TXT:</label>
+                        <input type="file" id="csvFileInput" accept=".csv,.txt">
+                        <div class="decimal-hint">
+                            <i class="fas fa-info-circle"></i> CSV debe tener un valor por línea, TXT debe tener un valor por línea
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container" id="csvProgressContainer">
+                        <div class="progress-bar" id="csvProgressBar"></div>
+                    </div>
+                    <button id="loadCsvBtn"><i class="fas fa-file-import"></i> Cargar Datos CSV/TXT</button>
+                    <div id="csvStatus" class="status-message">Esperando archivo CSV/TXT</div>
+                </div>
             </div>
             
             <div class="target-indicator">
                 <i class="fas fa-bullseye"></i> <strong>Área de edición:</strong> <span id="editingTarget">No se ha seleccionado ninguna columna</span>
-            </div>
-            
-            <div class="control-group" id="fileSection">
-                <h2><i class="fas fa-file-import"></i> Carga de Archivos</h2>
-                <div class="input-group">
-                    <label for="fileInput"><i class="fas fa-file-export"></i> Archivo:</label>
-                    <input type="file" id="fileInput" accept=".xlsx,.xlsm,.csv,.txt">
-                </div>
-                
-                <div class="sheet-selection">
-                    <div class="input-group">
-                        <label for="sheetSelect"><i class="fas fa-layer-group"></i> Hoja/Columna:</label>
-                        <select id="sheetSelect">
-                            <option value="">-- Seleccionar --</option>
-                        </select>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="startRow"><i class="fas fa-sort-numeric-down"></i> Fila Inicial:</label>
-                        <input type="number" id="startRow" min="1" value="1">
-                    </div>
-                </div>
-                
-                <div class="progress-container" id="fileProgressContainer">
-                    <div class="progress-bar" id="fileProgressBar"></div>
-                </div>
-                <button id="loadFileBtn"><i class="fas fa-file-import"></i> Cargar Datos</button>
-                <div id="fileStatus" class="status-message">Esperando archivo</div>
             </div>
             
             <div class="control-group" id="columnsSection" style="display: none;">
@@ -963,6 +1054,14 @@
                     <span id="elasticPercent">70%</span>
                 </div>
                 <div class="deformation-description">Efecto amplificado para zonas planas</div>
+                
+                <div class="elastic-preview">
+                    <div class="elastic-demo" style="--i: 0"></div>
+                    <div class="elastic-demo" style="--i: 1"></div>
+                    <div class="elastic-demo" style="--i: 2"></div>
+                    <div class="elastic-demo" style="--i: 3"></div>
+                    <div class="elastic-demo" style="--i: 4"></div>
+                </div>
                 
                 <div class="toggle-group">
                     <label class="toggle-label">
@@ -1069,15 +1168,17 @@
         let isProcessing = false;
         let previewData = null;
         let cellPositions = {};
-        let fileType = "";
+        let fileType = "excel";
         let exportFormat = "excel";
-        let csvContent = null;
+        let currentFileType = "excel"; // "excel" o "csv"
 
         // Elementos del DOM
-        const fileInput = document.getElementById('fileInput');
+        const excelFileInput = document.getElementById('excelFileInput');
+        const csvFileInput = document.getElementById('csvFileInput');
         const sheetSelect = document.getElementById('sheetSelect');
         const startRowInput = document.getElementById('startRow');
-        const loadFileBtn = document.getElementById('loadFileBtn');
+        const loadExcelBtn = document.getElementById('loadExcelBtn');
+        const loadCsvBtn = document.getElementById('loadCsvBtn');
         const minTempInput = document.getElementById('minTemp');
         const maxTempInput = document.getElementById('maxTemp');
         const minTempRange = document.getElementById('minTempRange');
@@ -1089,10 +1190,13 @@
         const originalMaxElem = document.getElementById('originalMax');
         const newMinElem = document.getElementById('newMin');
         const newMaxElem = document.getElementById('newMax');
-        const fileStatus = document.getElementById('fileStatus');
+        const excelStatus = document.getElementById('excelStatus');
+        const csvStatus = document.getElementById('csvStatus');
         const downloadStatus = document.getElementById('downloadStatus');
-        const fileProgressContainer = document.getElementById('fileProgressContainer');
-        const fileProgressBar = document.getElementById('fileProgressBar');
+        const excelProgressContainer = document.getElementById('excelProgressContainer');
+        const excelProgressBar = document.getElementById('excelProgressBar');
+        const csvProgressContainer = document.getElementById('csvProgressContainer');
+        const csvProgressBar = document.getElementById('csvProgressBar');
         const shapeDeformationSlider = document.getElementById('shapeDeformation');
         const horizontalDeformationSlider = document.getElementById('horizontalDeformation');
         const verticalDeformationSlider = document.getElementById('verticalDeformation');
@@ -1115,6 +1219,9 @@
         const notificationArea = document.getElementById('notificationArea');
         const editingTarget = document.getElementById('editingTarget');
         const formatOptions = document.querySelectorAll('.format-btn');
+        const tabs = document.querySelectorAll('.tab');
+        const excelSection = document.getElementById('excelSection');
+        const csvSection = document.getElementById('csvSection');
 
         // Función para mostrar notificaciones
         function showNotification(message, type = 'info', duration = 3000) {
@@ -1165,11 +1272,6 @@
                 
                 pyodideLoading.style.display = 'none';
                 showNotification("Python listo para procesar datos", "success");
-                
-                // Cargar archivo si ya se seleccionó
-                if (inputFile) {
-                    loadFileData();
-                }
             } catch (error) {
                 pyodideLoading.style.display = 'none';
                 showNotification("Error al cargar Python: " + error.message, "error");
@@ -1177,67 +1279,27 @@
             }
         }
 
-        // Cargar datos de archivo
-        async function loadFileData() {
+        // Cargar datos de Excel
+        async function loadExcelData() {
             if (!pyodide || !inputFile) return;
             
             try {
                 isProcessing = true;
-                fileStatus.textContent = "Procesando archivo...";
-                fileStatus.className = "status-message warning";
-                fileProgressContainer.style.display = 'block';
-                fileProgressBar.style.width = '0%';
+                excelStatus.textContent = "Procesando Excel...";
+                excelStatus.className = "status-message warning";
+                excelProgressContainer.style.display = 'block';
+                excelProgressBar.style.width = '0%';
                 
                 startRow = parseInt(startRowInput.value) || 1;
                 
-                // Determinar tipo de archivo
-                const fileName = inputFile.name.toLowerCase();
-                if (fileName.endsWith('.xlsx') || fileName.endsWith('.xlsm')) {
-                    fileType = 'excel';
-                    await processExcelFile();
-                } else if (fileName.endsWith('.csv')) {
-                    fileType = 'csv';
-                    await processCsvFile();
-                } else if (fileName.endsWith('.txt')) {
-                    fileType = 'txt';
-                    await processTextFile();
-                } else {
-                    throw new Error("Formato de archivo no compatible");
-                }
+                const arrayBuffer = await inputFile.arrayBuffer();
+                const bytes = new Uint8Array(arrayBuffer);
                 
-                fileStatus.textContent = "Archivo cargado correctamente";
-                fileStatus.className = "status-message success";
-                fileProgressBar.style.width = '100%';
+                // Pasar archivo a Python
+                pyodide.FS.writeFile(inputFile.name, bytes);
                 
-                // Mostrar sección de columnas
-                columnsSection.style.display = 'block';
-                showNotification("Archivo cargado correctamente", "success");
-                
-                setTimeout(() => {
-                    fileProgressContainer.style.display = 'none';
-                    isProcessing = false;
-                }, 1000);
-                
-            } catch (error) {
-                fileStatus.textContent = "Error al procesar archivo: " + error.message;
-                fileStatus.className = "status-message error";
-                fileProgressContainer.style.display = 'none';
-                isProcessing = false;
-                showNotification("Error al procesar archivo", "error");
-                console.error(error);
-            }
-        }
-
-        // Procesar archivo Excel
-        async function processExcelFile() {
-            const arrayBuffer = await inputFile.arrayBuffer();
-            const bytes = new Uint8Array(arrayBuffer);
-            
-            // Pasar archivo a Python
-            pyodide.FS.writeFile(inputFile.name, bytes);
-            
-            const filename = JSON.stringify(inputFile.name);
-            const script = `
+                const filename = JSON.stringify(inputFile.name);
+                const script = `
 import traceback
 import json
 import re
@@ -1311,130 +1373,144 @@ def process_excel():
 result_json = process_excel()
 `.replace('${startRow}', startRow).replace('${filename}', filename);
 
-            // Ejecutar script Python
-            await pyodide.runPythonAsync(script);
-            const result = pyodide.globals.get('result_json');
-            const parsed = JSON.parse(result);
-            debugInfo.textContent = parsed.debug_info;
-            fileProgressBar.style.width = '70%';
-            
-            // Verificar si se obtuvieron datos
-            if (parsed && parsed.excel_data) {
-                originalData = parsed.excel_data;
-                cellPositions = parsed.cell_positions;
-                modifiedData = {}; // Resetear modificaciones
-            } else {
-                throw new Error("El script de Python no retornó datos válidos");
+                // Ejecutar script Python
+                await pyodide.runPythonAsync(script);
+                const result = pyodide.globals.get('result_json');
+                const parsed = JSON.parse(result);
+                debugInfo.textContent = parsed.debug_info;
+                excelProgressBar.style.width = '70%';
+                
+                // Verificar si se obtuvieron datos
+                if (parsed && parsed.excel_data) {
+                    originalData = parsed.excel_data;
+                    cellPositions = parsed.cell_positions;
+                    modifiedData = {}; // Resetear modificaciones
+                } else {
+                    throw new Error("El script de Python no retornó datos válidos");
+                }
+                
+                // Actualizar selector de hojas
+                sheetSelect.innerHTML = '<option value="">-- Seleccionar hoja --</option>';
+                parsed.sheets.forEach(sheet => {
+                    const option = document.createElement('option');
+                    option.value = sheet;
+                    option.textContent = sheet;
+                    sheetSelect.appendChild(option);
+                });
+                
+                excelStatus.textContent = "Excel cargado correctamente";
+                excelStatus.className = "status-message success";
+                excelProgressBar.style.width = '100%';
+                
+                // Mostrar sección de columnas
+                columnsSection.style.display = 'block';
+                showNotification("Excel cargado correctamente", "success");
+                
+                setTimeout(() => {
+                    excelProgressContainer.style.display = 'none';
+                    isProcessing = false;
+                }, 1000);
+                
+            } catch (error) {
+                excelStatus.textContent = "Error al procesar Excel: " + error.message;
+                excelStatus.className = "status-message error";
+                excelProgressContainer.style.display = 'none';
+                isProcessing = false;
+                showNotification("Error al procesar Excel", "error");
+                console.error(error);
             }
-            
-            // Actualizar selector de hojas
-            sheetSelect.innerHTML = '<option value="">-- Seleccionar hoja --</option>';
-            parsed.sheets.forEach(sheet => {
-                const option = document.createElement('option');
-                option.value = sheet;
-                option.textContent = sheet;
-                sheetSelect.appendChild(option);
-            });
         }
 
-        // Procesar archivo CSV (versión mejorada)
-        async function processCsvFile() {
-            const text = await inputFile.text();
-            csvContent = text;
-            const lines = text.split('\n').map(line => line.trim()).filter(line => line !== '');
-            
-            // Determinar número de columnas
-            const firstDataLine = lines[Math.max(startRow - 1, 0)];
-            const numCols = firstDataLine.split(',').length;
-            
-            // Crear estructura de datos
-            const sheetData = {};
-            const positions = {};
-            
-            for (let col = 0; col < numCols; col++) {
-                const colLetter = String.fromCharCode(65 + col);
-                sheetData[colLetter] = [];
-                positions[colLetter] = [];
+        // Cargar archivo CSV/TXT
+        async function loadCsvData() {
+            const file = csvFileInput.files[0];
+            if (!file) {
+                csvStatus.textContent = "Por favor, seleccione un archivo";
+                csvStatus.className = "status-message error";
+                return;
             }
             
-            // Procesar líneas
-            for (let i = startRow - 1; i < lines.length; i++) {
-                const row = lines[i].split(',');
-                for (let col = 0; col < numCols; col++) {
-                    const colLetter = String.fromCharCode(65 + col);
-                    if (col < row.length) {
-                        const value = row[col].trim();
-                        // Manejar números con comas decimales
-                        const cleanedValue = value.replace(/[^\d.,-]/g, '').replace(',', '.');
-                        const numValue = parseFloat(cleanedValue);
-                        
-                        if (!isNaN(numValue)) {
-                            sheetData[colLetter].push(numValue);
-                            positions[colLetter].push(i + 1);
-                        } else if (value !== '') {
-                            // Mantener valores no numéricos pero mostrar advertencia
-                            debugInfo.textContent += `Valor no numérico en fila ${i+1}, col ${colLetter}: ${value}\n`;
-                        }
+            try {
+                isProcessing = true;
+                csvStatus.textContent = "Procesando CSV/TXT...";
+                csvStatus.className = "status-message warning";
+                csvProgressContainer.style.display = 'block';
+                csvProgressBar.style.width = '0%';
+                
+                const text = await file.text();
+                const lines = text.split('\n').map(line => line.trim()).filter(line => line !== '');
+                
+                // Crear estructura de datos con una sola columna
+                const sheetData = {
+                    "A": []
+                };
+                
+                const positions = {
+                    "A": []
+                };
+                
+                // Procesar líneas
+                for (let i = 0; i < lines.length; i++) {
+                    const value = lines[i];
+                    // Manejar números con comas decimales
+                    const cleanedValue = value.replace(/[^\d.,-]/g, '').replace(',', '.');
+                    const numValue = parseFloat(cleanedValue);
+                    
+                    if (!isNaN(numValue)) {
+                        sheetData["A"].push(numValue);
+                        positions["A"].push(i + 1);
+                    } else if (value !== '') {
+                        debugInfo.textContent += `Valor no numérico en fila ${i+1}: ${value}\n`;
                     }
                 }
-            }
-            
-            originalData = { "Datos CSV": sheetData };
-            cellPositions = { "Datos CSV": positions };
-            modifiedData = JSON.parse(JSON.stringify(originalData));
-            
-            // Actualizar selector de hojas
-            sheetSelect.innerHTML = '';
-            const option = document.createElement('option');
-            option.value = "Datos CSV";
-            option.textContent = "Datos CSV";
-            sheetSelect.appendChild(option);
-            
-            fileProgressBar.style.width = '70%';
-        }
-
-        // Procesar archivo de texto (versión mejorada)
-        async function processTextFile() {
-            const text = await inputFile.text();
-            const lines = text.split('\n').map(line => line.trim()).filter(line => line !== '');
-            
-            // Crear estructura de datos con una sola columna
-            const sheetData = {
-                "A": []
-            };
-            
-            const positions = {
-                "A": []
-            };
-            
-            // Procesar líneas
-            for (let i = startRow - 1; i < lines.length; i++) {
-                const value = lines[i];
-                // Manejar números con comas decimales
-                const cleanedValue = value.replace(/[^\d.,-]/g, '').replace(',', '.');
-                const numValue = parseFloat(cleanedValue);
                 
-                if (!isNaN(numValue)) {
-                    sheetData["A"].push(numValue);
-                    positions["A"].push(i + 1);
-                } else if (value !== '') {
-                    // Mantener valores no numéricos pero mostrar advertencia
-                    debugInfo.textContent += `Valor no numérico en fila ${i+1}: ${value}\n`;
-                }
+                originalData = { "Datos CSV/TXT": sheetData };
+                cellPositions = { "Datos CSV/TXT": positions };
+                modifiedData = JSON.parse(JSON.stringify(originalData));
+                
+                // Actualizar selector de hojas
+                sheetSelect.innerHTML = '';
+                const option = document.createElement('option');
+                option.value = "Datos CSV/TXT";
+                option.textContent = "Datos CSV/TXT";
+                sheetSelect.appendChild(option);
+                
+                // Mostrar sección de columnas
+                columnsSection.style.display = 'block';
+                showNotification("CSV/TXT cargado correctamente", "success");
+                
+                // Seleccionar automáticamente la única columna
+                selectedSheet = "Datos CSV/TXT";
+                selectedColumn = "A";
+                currentSheetName = selectedSheet;
+                currentColumnName = selectedColumn;
+                currentSheetNameElem.textContent = selectedSheet;
+                currentColumnNameElem.textContent = selectedColumn;
+                editingTarget.textContent = `${selectedSheet} - Columna ${selectedColumn}`;
+                
+                // Mostrar sección de deformación
+                deformationSection.style.display = 'block';
+                
+                // Cargar datos para edición
+                loadDataForEditing();
+                
+                csvProgressBar.style.width = '100%';
+                csvStatus.textContent = "Archivo cargado correctamente";
+                csvStatus.className = "status-message success";
+                
+                setTimeout(() => {
+                    csvProgressContainer.style.display = 'none';
+                    isProcessing = false;
+                }, 1000);
+                
+            } catch (error) {
+                csvStatus.textContent = "Error al procesar archivo: " + error.message;
+                csvStatus.className = "status-message error";
+                csvProgressContainer.style.display = 'none';
+                isProcessing = false;
+                showNotification("Error al procesar CSV/TXT", "error");
+                console.error(error);
             }
-            
-            originalData = { "Datos TXT": sheetData };
-            cellPositions = { "Datos TXT": positions };
-            modifiedData = JSON.parse(JSON.stringify(originalData));
-            
-            // Actualizar selector de hojas
-            sheetSelect.innerHTML = '';
-            const option = document.createElement('option');
-            option.value = "Datos TXT";
-            option.textContent = "Datos TXT";
-            sheetSelect.appendChild(option);
-            
-            fileProgressBar.style.width = '70%';
         }
 
         // Mostrar columnas disponibles para una hoja
@@ -1805,37 +1881,13 @@ result = process_excel(data)
         async function processCsvExport() {
             const sheetName = Object.keys(modifiedData)[0];
             const sheet = modifiedData[sheetName];
-            
-            // Obtener las columnas en orden
-            const colLetters = Object.keys(sheet).sort();
-            const numRows = colLetters.length > 0 ? sheet[colLetters[0]].length : 0;
+            const colLetter = Object.keys(sheet)[0];
+            const values = sheet[colLetter];
             
             // Construir contenido CSV
-            let csvContent = "";
-            
-            // Encabezados si existen
-            if (startRow > 1 && fileType === 'csv' && csvContent) {
-                const headerLines = csvContent.split('\n').slice(0, startRow - 1);
-                csvContent = headerLines.join('\n') + '\n';
-            } else {
-                // Crear encabezados de columna
-                const headers = colLetters.map(letter => `Columna ${letter}`);
-                csvContent += headers.join(',') + '\n';
-            }
-            
-            // Filas de datos
-            for (let i = 0; i < numRows; i++) {
-                const row = [];
-                for (let j = 0; j < colLetters.length; j++) {
-                    const col = colLetters[j];
-                    if (sheet[col] && i < sheet[col].length) {
-                        row.push(sheet[col][i].toFixed(2).replace('.', ','));
-                    } else {
-                        row.push('');
-                    }
-                }
-                csvContent += row.join(',') + '\n';
-            }
+            let csvContent = values.map(val => 
+                val.toFixed(2).replace('.', ',') // Convertir a coma decimal
+            ).join('\n');
             
             // Descargar
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1858,7 +1910,9 @@ result = process_excel(data)
             const values = sheet[colLetter];
             
             // Construir contenido de texto
-            let textContent = values.map(val => val.toFixed(2).replace('.', ',')).join('\n');
+            let textContent = values.map(val => 
+                val.toFixed(2).replace('.', ',') // Convertir a coma decimal
+            ).join('\n');
             
             // Descargar
             const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8;' });
@@ -1878,19 +1932,48 @@ result = process_excel(data)
             // Inicializar Python
             initializePyodide();
             
+            // Configurar eventos de pestañas
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFileType = this.getAttribute('data-tab');
+                    
+                    // Mostrar la sección correspondiente
+                    if (currentFileType === 'excel') {
+                        excelSection.classList.add('active');
+                        csvSection.classList.remove('active');
+                    } else {
+                        excelSection.classList.remove('active');
+                        csvSection.classList.add('active');
+                    }
+                });
+            });
+            
             // Configurar eventos
-            fileInput.addEventListener('change', function() {
+            excelFileInput.addEventListener('change', function() {
                 inputFile = this.files[0];
-                if (pyodide) {
-                    loadFileData();
+                fileType = "excel";
+            });
+            
+            csvFileInput.addEventListener('change', function() {
+                inputFile = this.files[0];
+                fileType = "csv";
+            });
+            
+            loadExcelBtn.addEventListener('click', function() {
+                if (inputFile && pyodide) {
+                    loadExcelData();
+                } else if (!inputFile) {
+                    showNotification("Seleccione un archivo Excel primero", "error");
                 }
             });
             
-            loadFileBtn.addEventListener('click', function() {
-                if (inputFile && pyodide) {
-                    loadFileData();
-                } else if (!inputFile) {
-                    showNotification("Seleccione un archivo primero", "error");
+            loadCsvBtn.addEventListener('click', function() {
+                if (inputFile) {
+                    loadCsvData();
+                } else {
+                    showNotification("Seleccione un archivo CSV/TXT primero", "error");
                 }
             });
             
