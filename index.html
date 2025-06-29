@@ -21,6 +21,7 @@
             --elastic: #e67e22;
             --excel: #217346;
             --csv: #f39c12;
+            --bg-gradient: linear-gradient(135deg, #1a2a6c, #2c3e50, #1a2a6c);
         }
         
         * {
@@ -33,14 +34,14 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: var(--dark);
-            background: linear-gradient(135deg, #1a2a6c, #2c3e50, #1a2a6c);
+            background: var(--bg-gradient);
             min-height: 100vh;
             padding: 20px;
             overflow-x: hidden;
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.97);
             border-radius: 15px;
@@ -48,9 +49,17 @@
             overflow: hidden;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr auto;
+            grid-template-areas:
+                "header header"
+                "controls chart"
+                "footer footer";
         }
         
         header {
+            grid-area: header;
             background: linear-gradient(to right, #2c3e50, #4a6491);
             color: white;
             padding: 25px 40px;
@@ -74,33 +83,30 @@
             font-weight: 300;
         }
         
-        .main-content {
-            display: flex;
-            flex-wrap: wrap;
+        .controls {
+            grid-area: controls;
             padding: 30px;
-            gap: 20px;
+            background: var(--light);
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
         }
         
-        .controls {
-            flex: 1;
-            min-width: 350px;
-            padding: 20px;
-            background: var(--light);
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        .chart-area {
+            grid-area: chart;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            background: white;
+            border-left: 1px solid #e0e0e0;
         }
         
         .chart-container {
-            flex: 2;
-            min-width: 600px;
             height: 500px;
             background: white;
             border-radius: 10px;
-            padding: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            position: relative;
-            margin-bottom: 20px;
             border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
         }
         
         .control-group {
@@ -275,6 +281,7 @@
         .new-max { color: #f39c12; }
         
         footer {
+            grid-area: footer;
             text-align: center;
             padding: 20px;
             color: var(--dark);
@@ -524,13 +531,18 @@
         }
         
         @media (max-width: 1000px) {
-            .main-content {
-                flex-direction: column;
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "header"
+                    "controls"
+                    "chart"
+                    "footer";
             }
             
-            .chart-container {
-                min-width: 100%;
-                height: 500px;
+            .chart-area {
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
             }
         }
         
@@ -666,237 +678,235 @@
             <p class="subtitle">Procesa archivos Excel (.xlsx, .xlsm) y CSV con deformaciones avanzadas de curvas</p>
         </header>
         
-        <div class="main-content">
-            <div class="controls">
-                <div class="instructions">
-                    <h3><i class="fas fa-lightbulb"></i> ¡Todo en uno!</h3>
-                    <ul>
-                        <li>Sube archivos Excel (.xlsx, .xlsm) o CSV</li>
-                        <li>Para Excel: mantiene macros y fórmulas</li>
-                        <li>Para CSV: procesamiento directo y rápido</li>
-                        <li>Ajusta los parámetros de deformación</li>
-                        <li>Visualiza los cambios en tiempo real</li>
-                        <li>Descarga los resultados en el formato que prefieras</li>
-                        <li>Usa <strong>comas</strong> como separador decimal (ej: 23,5)</li>
-                    </ul>
+        <div class="controls">
+            <div class="instructions">
+                <h3><i class="fas fa-lightbulb"></i> ¡Todo en uno!</h3>
+                <ul>
+                    <li>Sube archivos Excel (.xlsx, .xlsm) o CSV</li>
+                    <li>Para Excel: mantiene macros y fórmulas</li>
+                    <li>Para CSV: procesamiento directo y rápido</li>
+                    <li>Ajusta los parámetros de deformación</li>
+                    <li>Visualiza los cambios en tiempo real</li>
+                    <li>Descarga los resultados en el formato que prefieras</li>
+                    <li>Usa <strong>comas</strong> como separador decimal (ej: 23,5)</li>
+                </ul>
+            </div>
+            
+            <div class="tab-container">
+                <div class="tab active" id="excelTab">Excel (.xlsx, .xlsm)</div>
+                <div class="tab" id="csvTab">CSV</div>
+            </div>
+            
+            <div class="control-group" id="excelSection">
+                <h2><i class="fas fa-file-excel"></i> Carga de Excel</h2>
+                <div class="input-group">
+                    <label for="excelFile"><i class="fas fa-file-export"></i> Seleccionar archivo Excel:</label>
+                    <input type="file" id="excelFile" accept=".xlsx,.xlsm">
                 </div>
                 
-                <div class="tab-container">
-                    <div class="tab active" id="excelTab">Excel (.xlsx, .xlsm)</div>
-                    <div class="tab" id="csvTab">CSV</div>
-                </div>
-                
-                <div class="control-group" id="excelSection">
-                    <h2><i class="fas fa-file-excel"></i> Carga de Excel</h2>
+                <div class="sheet-selection">
                     <div class="input-group">
-                        <label for="excelFile"><i class="fas fa-file-export"></i> Seleccionar archivo Excel:</label>
-                        <input type="file" id="excelFile" accept=".xlsx,.xlsm">
+                        <label for="sheetSelect"><i class="fas fa-layer-group"></i> Hoja:</label>
+                        <select id="sheetSelect">
+                            <option value="">-- Seleccionar hoja --</option>
+                        </select>
                     </div>
                     
-                    <div class="sheet-selection">
-                        <div class="input-group">
-                            <label for="sheetSelect"><i class="fas fa-layer-group"></i> Hoja:</label>
-                            <select id="sheetSelect">
-                                <option value="">-- Seleccionar hoja --</option>
-                            </select>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="columnSelect"><i class="fas fa-columns"></i> Columna:</label>
-                            <select id="columnSelect">
-                                <option value="">-- Seleccionar columna --</option>
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="C">C</option>
-                                <option value="D">D</option>
-                                <option value="E">E</option>
-                                <option value="F">F</option>
-                                <option value="G">G</option>
-                                <option value="H">H</option>
-                                <option value="I">I</option>
-                                <option value="J">J</option>
-                                <option value="K">K</option>
-                                <option value="L">L</option>
-                                <option value="M">M</option>
-                                <option value="N">N</option>
-                                <option value="O">O</option>
-                            </select>
-                        </div>
+                    <div class="input-group">
+                        <label for="columnSelect"><i class="fas fa-columns"></i> Columna:</label>
+                        <select id="columnSelect">
+                            <option value="">-- Seleccionar columna --</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                        </select>
                     </div>
-                    
-                    <div class="row-range">
-                        <div class="input-group">
-                            <label for="startRow"><i class="fas fa-sort-numeric-down"></i> Fila Inicial:</label>
-                            <input type="number" id="startRow" min="1" value="1">
-                        </div>
-                        <div class="input-group">
-                            <label for="endRow"><i class="fas fa-sort-numeric-up"></i> Fila Final:</label>
-                            <input type="number" id="endRow" min="1">
-                        </div>
+                </div>
+                
+                <div class="row-range">
+                    <div class="input-group">
+                        <label for="startRow"><i class="fas fa-sort-numeric-down"></i> Fila Inicial:</label>
+                        <input type="number" id="startRow" min="1" value="1">
                     </div>
-                    
+                    <div class="input-group">
+                        <label for="endRow"><i class="fas fa-sort-numeric-up"></i> Fila Final:</label>
+                        <input type="number" id="endRow" min="1">
+                    </div>
+                </div>
+                
+                <div class="decimal-hint">
+                    <i class="fas fa-info-circle"></i> Los archivos Excel deben tener valores numéricos en las celdas (usando comas como decimales)
+                </div>
+                
+                <div class="progress-container" id="excelProgressContainer">
+                    <div class="progress-bar" id="excelProgressBar"></div>
+                </div>
+                <button id="loadExcelBtn"><i class="fas fa-file-import"></i> Cargar Datos de Excel</button>
+                <div id="excelStatus" class="status-message">Esperando archivo Excel</div>
+            </div>
+            
+            <div class="control-group" id="csvSection" style="display: none;">
+                <h2><i class="fas fa-file-csv"></i> Carga de CSV</h2>
+                <div class="input-group">
+                    <label for="csvFile"><i class="fas fa-file-import"></i> Seleccionar archivo CSV:</label>
+                    <input type="file" id="csvFile" accept=".csv">
                     <div class="decimal-hint">
-                        <i class="fas fa-info-circle"></i> Los archivos Excel deben tener valores numéricos en las celdas (usando comas como decimales)
-                    </div>
-                    
-                    <div class="progress-container" id="excelProgressContainer">
-                        <div class="progress-bar" id="excelProgressBar"></div>
-                    </div>
-                    <button id="loadExcelBtn"><i class="fas fa-file-import"></i> Cargar Datos de Excel</button>
-                    <div id="excelStatus" class="status-message">Esperando archivo Excel</div>
-                </div>
-                
-                <div class="control-group" id="csvSection" style="display: none;">
-                    <h2><i class="fas fa-file-csv"></i> Carga de CSV</h2>
-                    <div class="input-group">
-                        <label for="csvFile"><i class="fas fa-file-import"></i> Seleccionar archivo CSV:</label>
-                        <input type="file" id="csvFile" accept=".csv">
-                        <div class="decimal-hint">
-                            <i class="fas fa-info-circle"></i> El archivo CSV debe contener un valor numérico por línea (usando comas como decimales)
-                        </div>
-                    </div>
-                    
-                    <div class="progress-container" id="csvProgressContainer">
-                        <div class="progress-bar" id="csvProgressBar"></div>
-                    </div>
-                    <button id="loadCsvBtn"><i class="fas fa-file-import"></i> Cargar Datos CSV</button>
-                    <div id="csvStatus" class="status-message">Esperando archivo CSV</div>
-                </div>
-                
-                <div class="control-group">
-                    <h2><i class="fas fa-sliders-h"></i> Ajuste de Temperatura</h2>
-                    <div class="input-group">
-                        <label for="minTemp"><i class="fas fa-temperature-low"></i> Temperatura Mínima:</label>
-                        <input type="text" id="minTemp" placeholder="Ej: 15,5">
-                        <div class="decimal-hint">Usa comas para decimales (ej: 15,5)</div>
-                        <div class="range-container">
-                            <input type="range" id="minTempRange" min="-10" max="50" step="0.5">
-                            <span id="minTempValue">--</span>
-                        </div>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="maxTemp"><i class="fas fa-temperature-high"></i> Temperatura Máxima:</label>
-                        <input type="text" id="maxTemp" placeholder="Ej: 32,0">
-                        <div class="decimal-hint">Usa comas para decimales (ej: 32,0)</div>
-                        <div class="range-container">
-                            <input type="range" id="maxTempRange" min="0" max="60" step="0.5">
-                            <span id="maxTempValue">--</span>
-                        </div>
+                        <i class="fas fa-info-circle"></i> El archivo CSV debe contener un valor numérico por línea (usando comas como decimales)
                     </div>
                 </div>
                 
-                <div class="control-group">
-                    <h2><i class="fas fa-file-download"></i> Exportar Resultados</h2>
-                    <button id="downloadCsvBtn"><i class="fas fa-file-csv"></i> Descargar CSV</button>
-                    <button id="downloadExcelBtn"><i class="fas fa-file-excel"></i> Descargar Excel Modificado</button>
-                    <div id="downloadStatus" class="status-message"></div>
+                <div class="progress-container" id="csvProgressContainer">
+                    <div class="progress-bar" id="csvProgressBar"></div>
                 </div>
-                
-                <div class="data-info">
-                    <div class="info-card">
-                        <h3><i class="fas fa-thermometer-quarter"></i> Mínimo Original</h3>
-                        <p id="originalMin" class="original-min">--</p>
-                    </div>
-                    <div class="info-card">
-                        <h3><i class="fas fa-thermometer-full"></i> Máximo Original</h3>
-                        <p id="originalMax" class="original-max">--</p>
-                    </div>
-                    <div class="info-card">
-                        <h3><i class="fas fa-thermometer-quarter"></i> Nuevo Mínimo</h3>
-                        <p id="newMin" class="new-min">--</p>
-                    </div>
-                    <div class="info-card">
-                        <h3><i class="fas fa-thermometer-full"></i> Nuevo Máximo</h3>
-                        <p id="newMax" class="new-max">--</p>
+                <button id="loadCsvBtn"><i class="fas fa-file-import"></i> Cargar Datos CSV</button>
+                <div id="csvStatus" class="status-message">Esperando archivo CSV</div>
+            </div>
+            
+            <div class="control-group">
+                <h2><i class="fas fa-sliders-h"></i> Ajuste de Temperatura</h2>
+                <div class="input-group">
+                    <label for="minTemp"><i class="fas fa-temperature-low"></i> Temperatura Mínima:</label>
+                    <input type="text" id="minTemp" placeholder="Ej: 15,5">
+                    <div class="decimal-hint">Usa comas para decimales (ej: 15,5)</div>
+                    <div class="range-container">
+                        <input type="range" id="minTempRange" min="-10" max="50" step="0.5">
+                        <span id="minTempValue">--</span>
                     </div>
                 </div>
                 
-                <div id="pyodideLoading" class="pyodide-loading">
-                    <i class="fas fa-sync fa-spin"></i> Inicializando Python...
+                <div class="input-group">
+                    <label for="maxTemp"><i class="fas fa-temperature-high"></i> Temperatura Máxima:</label>
+                    <input type="text" id="maxTemp" placeholder="Ej: 32,0">
+                    <div class="decimal-hint">Usa comas para decimales (ej: 32,0)</div>
+                    <div class="range-container">
+                        <input type="range" id="maxTempRange" min="0" max="60" step="0.5">
+                        <span id="maxTempValue">--</span>
+                    </div>
                 </div>
             </div>
             
-            <div class="chart-area">
-                <div class="chart-container">
-                    <canvas id="temperatureChart"></canvas>
+            <div class="control-group">
+                <h2><i class="fas fa-file-download"></i> Exportar Resultados</h2>
+                <button id="downloadCsvBtn"><i class="fas fa-file-csv"></i> Descargar CSV</button>
+                <button id="downloadExcelBtn"><i class="fas fa-file-excel"></i> Descargar Excel Modificado</button>
+                <div id="downloadStatus" class="status-message"></div>
+            </div>
+            
+            <div class="data-info">
+                <div class="info-card">
+                    <h3><i class="fas fa-thermometer-quarter"></i> Mínimo Original</h3>
+                    <p id="originalMin" class="original-min">--</p>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-thermometer-full"></i> Máximo Original</h3>
+                    <p id="originalMax" class="original-max">--</p>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-thermometer-quarter"></i> Nuevo Mínimo</h3>
+                    <p id="newMin" class="new-min">--</p>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-thermometer-full"></i> Nuevo Máximo</h3>
+                    <p id="newMax" class="new-max">--</p>
+                </div>
+            </div>
+            
+            <div id="pyodideLoading" class="pyodide-loading">
+                <i class="fas fa-sync fa-spin"></i> Inicializando Python...
+            </div>
+        </div>
+        
+        <div class="chart-area">
+            <div class="chart-container">
+                <canvas id="temperatureChart"></canvas>
+            </div>
+            
+            <!-- Controles de deformación -->
+            <div class="deformation-controls">
+                <h3><i class="fas fa-sliders-h"></i> Controles de Deformación</h3>
+                
+                <div class="toggle-group">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="smoothCurve" checked>
+                        <i class="fas fa-wave-circle"></i> Suavizar curva
+                    </label>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="autoAdjust" checked>
+                        <i class="fas fa-magic"></i> Ajuste automático
+                    </label>
                 </div>
                 
-                <!-- Controles de deformación -->
-                <div class="deformation-controls">
-                    <h3><i class="fas fa-sliders-h"></i> Controles de Deformación</h3>
-                    
-                    <div class="toggle-group">
-                        <label class="toggle-label">
-                            <input type="checkbox" id="smoothCurve" checked>
-                            <i class="fas fa-wave-circle"></i> Suavizar curva
-                        </label>
-                        <label class="toggle-label">
-                            <input type="checkbox" id="autoAdjust" checked>
-                            <i class="fas fa-magic"></i> Ajuste automático
-                        </label>
-                    </div>
-                    
-                    <div class="deformation-intensity">
-                        <span>Forma Original</span>
-                        <input type="range" id="shapeDeformation" min="0" max="100" value="50">
-                        <span>Máxima Deformación</span>
-                        <span id="deformationPercent">50%</span>
-                    </div>
-                    <div class="deformation-description">
-                        Deformación de forma - Altera subidas, bajadas y picos
-                    </div>
-                    
-                    <div class="deformation-intensity">
-                        <span>Comprimir</span>
-                        <input type="range" id="horizontalDeformation" min="0" max="100" value="50">
-                        <span>Expandir</span>
-                        <span id="horizontalPercent">50%</span>
-                    </div>
-                    <div class="deformation-description">
-                        Deformación horizontal - Controla la distribución temporal
-                    </div>
-                    
-                    <div class="deformation-intensity">
-                        <span>Menos Amplitud</span>
-                        <input type="range" id="verticalDeformation" min="0" max="100" value="50">
-                        <span>Más Amplitud</span>
-                        <span id="verticalPercent">50%</span>
-                    </div>
-                    <div class="deformation-description">
-                        Deformación vertical - Controla la amplitud de las variaciones
-                    </div>
+                <div class="deformation-intensity">
+                    <span>Forma Original</span>
+                    <input type="range" id="shapeDeformation" min="0" max="100" value="50">
+                    <span>Máxima Deformación</span>
+                    <span id="deformationPercent">50%</span>
+                </div>
+                <div class="deformation-description">
+                    Deformación de forma - Altera subidas, bajadas y picos
                 </div>
                 
-                <!-- Controles de efecto elástico -->
-                <div class="elastic-effect-container">
-                    <h3><i class="fas fa-band-aid"></i> Control de Efecto Elástico</h3>
-                    
-                    <div class="deformation-intensity">
-                        <span>Sin Efecto</span>
-                        <input type="range" id="elasticEffect" min="0" max="100" value="70">
-                        <span>Máximo Efecto</span>
-                        <span id="elasticPercent">70%</span>
-                    </div>
-                    
-                    <div class="deformation-description">
-                        Crea ondulaciones naturales en zonas planas para simular variaciones realistas
-                    </div>
-                    
-                    <div class="elastic-preview">
-                        <div class="elastic-demo" style="--i: 0"></div>
-                        <div class="elastic-demo" style="--i: 1"></div>
-                        <div class="elastic-demo" style="--i: 2"></div>
-                        <div class="elastic-demo" style="--i: 3"></div>
-                        <div class="elastic-demo" style="--i: 4"></div>
-                    </div>
+                <div class="deformation-intensity">
+                    <span>Comprimir</span>
+                    <input type="range" id="horizontalDeformation" min="0" max="100" value="50">
+                    <span>Expandir</span>
+                    <span id="horizontalPercent">50%</span>
+                </div>
+                <div class="deformation-description">
+                    Deformación horizontal - Controla la distribución temporal
                 </div>
                 
-                <!-- Panel de información de depuración -->
-                <div class="debug-info">
-                    <h4><i class="fas fa-bug"></i> Información de Depuración</h4>
-                    <div id="debugContent">Esperando datos...</div>
+                <div class="deformation-intensity">
+                    <span>Menos Amplitud</span>
+                    <input type="range" id="verticalDeformation" min="0" max="100" value="50">
+                    <span>Más Amplitud</span>
+                    <span id="verticalPercent">50%</span>
                 </div>
+                <div class="deformation-description">
+                    Deformación vertical - Controla la amplitud de las variaciones
+                </div>
+            </div>
+            
+            <!-- Controles de efecto elástico -->
+            <div class="elastic-effect-container">
+                <h3><i class="fas fa-band-aid"></i> Control de Efecto Elástico</h3>
+                
+                <div class="deformation-intensity">
+                    <span>Sin Efecto</span>
+                    <input type="range" id="elasticEffect" min="0" max="100" value="70">
+                    <span>Máximo Efecto</span>
+                    <span id="elasticPercent">70%</span>
+                </div>
+                
+                <div class="deformation-description">
+                    Crea ondulaciones naturales en zonas planas para simular variaciones realistas
+                </div>
+                
+                <div class="elastic-preview">
+                    <div class="elastic-demo" style="--i: 0"></div>
+                    <div class="elastic-demo" style="--i: 1"></div>
+                    <div class="elastic-demo" style="--i: 2"></div>
+                    <div class="elastic-demo" style="--i: 3"></div>
+                    <div class="elastic-demo" style="--i: 4"></div>
+                </div>
+            </div>
+            
+            <!-- Panel de información de depuración -->
+            <div class="debug-info">
+                <h4><i class="fas fa-bug"></i> Información de Depuración</h4>
+                <div id="debugContent">Esperando datos...</div>
             </div>
         </div>
         
