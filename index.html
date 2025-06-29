@@ -1,74 +1,428 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Extrapolador Avanzado</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .input-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input, select, button { width: 100%; padding: 8px; margin-bottom: 10px; }
-    button { background: #3498db; color: white; border: none; cursor: pointer; }
-    .status-message { padding: 10px; margin: 10px 0; }
-    .success { background: #d4edda; color: #155724; }
-    .error { background: #f8d7da; color: #721c24; }
-    .warning { background: #fff3cd; color: #856404; }
-    .chart-container { height: 400px; margin-top: 20px; }
-    .debug-info { font-family: monospace; white-space: pre-wrap; background: #f0f0f0; padding: 10px; margin-top: 10px; }
-    .row-range { display: flex; gap: 10px; }
-    .row-range > div { flex: 1; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extrapolador Avanzado para Excel y CSV</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --success: #2ecc71;
+            --variation: #9b59b6;
+            --horizontal: #1abc9c;
+            --vertical: #f1c40f;
+            --elastic: #e67e22;
+            --excel: #217346;
+            --csv: #f39c12;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50, #1a2a6c);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        header {
+            background: linear-gradient(to right, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px 40px;
+            text-align: center;
+            border-bottom: 3px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 30px;
+            gap: 20px;
+        }
+        .controls {
+            flex: 1;
+            min-width: 350px;
+            padding: 20px;
+            background: var(--light);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-container {
+            flex: 2;
+            min-width: 600px;
+            height: 500px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group h2 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .control-group h2 i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+
+        label i {
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+
+        input[type="text"], input[type="file"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: white;
+        }
+
+        input[type="text"]:focus, input[type="file"]:focus, select:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .range-container input[type="range"] {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #ddd;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        .range-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        #minTempRange::-webkit-slider-thumb { 
+            background: var(--secondary);
+        }
+        #maxTempRange::-webkit-slider-thumb { 
+            background: var(--accent);
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        #loadBtn {
+            background: linear-gradient(to right, #3498db, #2980b9);
+        }
+
+        #downloadCsvBtn {
+            background: linear-gradient(to right, #f39c12, #e67e22);
+        }
+
+        #downloadExcelBtn {
+            background: linear-gradient(to right, #217346, #27ae60);
+        }
+      
+        #processExcelBtn {
+            background: linear-gradient(to right, #9b59b6, #8e44ad);
+        }
+
+        .data-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .info-card p {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .original-min { color: #3498db; }
+        .original-max { color: #e74c3c; }
+        .new-min { color: #2ecc71; }
+        .new-max { color: #f39c12; }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(236, 240, 241, 0.7);
+        }
+
+        .status-message {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+
+        .progress-container {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--secondary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .instructions {
+            background: linear-gradient(to right, #e3f2fd, #bbdefb);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .instructions h3 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .instructions li:before {
+            content: "•";
+            color: var(--secondary);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 1.2em;
+        }
+
+        .debug-info {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background: #f0f0f0;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .row-range {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row-range > div {
+            flex: 1;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <h1>Extrapolador Avanzado</h1>
-  <div class="input-group">
-    <label for="excelFile">Archivo Excel (.xlsx, .xlsm):</label>
-    <input type="file" id="excelFile" accept=".xlsx,.xlsm">
-  </div>
-  <div class="row-range">
-    <div class="input-group">
-      <label for="startRow">Fila Inicial:</label>
-      <input type="number" id="startRow" min="1" value="1">
+  <div class="container">
+    <header>
+      <h1>Extrapolador Avanzado</h1>
+      <p class="subtitle">Procesa archivos Excel y CSV con deformaciones avanzadas de curvas</p>
+    </header>
+    <div class="main-content">
+      <div class="controls">
+        <div class="input-group">
+          <label for="excelFile"><i class="fas fa-file-excel"></i> Archivo Excel (.xlsx, .xlsm):</label>
+          <input type="file" id="excelFile" accept=".xlsx,.xlsm">
+        </div>
+        <div class="input-group">
+          <button id="loadExcelBtn"><i class="fas fa-upload"></i> Cargar Datos de Excel</button>
+        </div>
+        <div id="loadStatus" class="status-message">Esperando archivo Excel</div>
+        <div class="input-group">
+          <label for="sheetSelect"><i class="fas fa-table"></i> Seleccionar hoja:</label>
+          <select id="sheetSelect"></select>
+        </div>
+        <div class="input-group">
+          <label for="columnSelect"><i class="fas fa-columns"></i> Seleccionar columna:</label>
+          <select id="columnSelect"></select>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="temperatureChart"></canvas>
+        <div class="debug-info" id="debugContent"></div>
+      </div>
     </div>
-    <div class="input-group">
-      <label for="endRow">Fila Final:</label>
-      <input type="number" id="endRow" min="1">
-    </div>
+    <footer>
+      <p><i class="fas fa-info-circle"></i> Extrapolador Avanzado para Excel y CSV | Procesa cualquier tipo de datos</p>
+    </footer>
   </div>
-  <button id="loadExcelBtn">Cargar Datos de Excel</button>
-  <div id="excelStatus" class="status-message">Esperando archivo Excel</div>
-  <div class="debug-info" id="debugContent"></div>
-</div>
 <script>
   let pyodide = null;
+  let excelFile = null;
+  let excelData = {};
   const excelFileInput = document.getElementById('excelFile');
   const loadExcelBtn = document.getElementById('loadExcelBtn');
-  const startRowInput = document.getElementById('startRow');
-  const endRowInput = document.getElementById('endRow');
-  const excelStatus = document.getElementById('excelStatus');
+  const sheetSelect = document.getElementById('sheetSelect');
+  const columnSelect = document.getElementById('columnSelect');
   const debugInfo = document.getElementById('debugContent');
+  const loadStatus = document.getElementById('loadStatus');
 
   async function initializePyodide() {
+    loadStatus.textContent = "Cargando entorno Python...";
+    loadStatus.className = "status-message warning";
     pyodide = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/" });
     await pyodide.loadPackage(['micropip']);
     await pyodide.runPythonAsync(`import micropip\nawait micropip.install('openpyxl')`);
-    excelStatus.textContent = "Python listo para procesar Excel";
-    excelStatus.className = "status-message success";
+    loadStatus.textContent = "Python listo para procesar Excel";
+    loadStatus.className = "status-message success";
   }
 
   async function loadExcelData() {
-    const excelFile = excelFileInput.files[0];
+    excelFile = excelFileInput.files[0];
     if (!pyodide || !excelFile) return;
     try {
-      excelStatus.textContent = "Procesando Excel...";
-      excelStatus.className = "status-message warning";
-      const startRow = parseInt(startRowInput.value) || 1;
-      const endRow = parseInt(endRowInput.value) || 0;
+      loadStatus.textContent = "Procesando Excel...";
+      loadStatus.className = "status-message warning";
       const arrayBuffer = await excelFile.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
       pyodide.FS.writeFile(excelFile.name, bytes);
@@ -84,15 +438,13 @@ from openpyxl.utils import get_column_letter
 def process_excel():
     output = {"sheets": [], "excel_data": {}, "debug_info": ""}
     try:
-        start = ${startRow}
-        end = ${endRow}
         wb = load_workbook(${filename}, data_only=True)
         output["sheets"] = wb.sheetnames
         output["debug_info"] += "Se encontraron {} hojas\\n".format(len(wb.sheetnames))
         for sheet in wb.sheetnames:
             ws = wb[sheet]
-            min_row = start
-            max_row = ws.max_row if end == 0 else min(end, ws.max_row)
+            min_row = 1
+            max_row = ws.max_row
             output["debug_info"] += "\\nHoja: {} (Filas: {}-{})\\n".format(sheet, min_row, max_row)
             for col_idx in range(1, ws.max_column + 1):
                 col_letter = get_column_letter(col_idx)
@@ -125,19 +477,42 @@ result_json = process_excel()
       await pyodide.runPythonAsync(script);
       const result = pyodide.globals.get('result_json');
       const parsed = JSON.parse(result);
+
       debugInfo.textContent = parsed.debug_info;
-      excelStatus.textContent = "Archivo procesado";
-      excelStatus.className = "status-message success";
+      loadStatus.textContent = "Archivo procesado correctamente";
+      loadStatus.className = "status-message success";
+
+      sheetSelect.innerHTML = '<option value="">-- Seleccionar hoja --</option>';
+      for (const sheetName of parsed.sheets) {
+        const option = document.createElement("option");
+        option.value = sheetName;
+        option.textContent = sheetName;
+        sheetSelect.appendChild(option);
+      }
+
+      excelData = parsed.excel_data;
+      sheetSelect.onchange = () => {
+        const selected = sheetSelect.value;
+        columnSelect.innerHTML = '<option value="">-- Seleccionar columna --</option>';
+        if (excelData[selected]) {
+          Object.keys(excelData[selected]).forEach((col) => {
+            const opt = document.createElement("option");
+            opt.value = col;
+            opt.textContent = col;
+            columnSelect.appendChild(opt);
+          });
+        }
+      };
     } catch (err) {
-      excelStatus.textContent = "Error: " + err.message;
-      excelStatus.className = "status-message error";
+      loadStatus.textContent = "Error: " + err.message;
+      loadStatus.className = "status-message error";
       debugInfo.textContent = "";
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     initializePyodide();
-    loadExcelBtn.addEventListener('click', loadExcelData);
+    loadExcelBtn.addEventListener("click", loadExcelData);
   });
 </script>
 </body>
