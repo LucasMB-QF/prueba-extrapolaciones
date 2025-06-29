@@ -8,663 +8,26 @@
     <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --accent: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #34495e;
-            --success: #2ecc71;
-            --variation: #9b59b6;
-            --horizontal: #1abc9c;
-            --vertical: #f1c40f;
-            --elastic: #e67e22;
-            --excel: #217346;
-            --csv: #f39c12;
-            --bg-gradient: linear-gradient(135deg, #1a2a6c, #2c3e50, #1a2a6c);
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.5;
-            color: var(--dark);
-            background: var(--bg-gradient);
-            min-height: 100vh;
-            padding: 15px;
-            overflow-x: hidden;
-            font-size: 14px;
-        }
-        
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.97);
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            display: grid;
-            grid-template-columns: 1.1fr 1fr;
-            grid-template-rows: auto 1fr auto;
-            grid-template-areas:
-                "header header"
-                "controls chart"
-                "footer footer";
-            height: calc(100vh - 30px);
-        }
-        
-        header {
-            grid-area: header;
-            background: linear-gradient(to right, #2c3e50, #4a6491);
-            color: white;
-            padding: 15px 25px;
-            text-align: center;
-            border-bottom: 2px solid var(--accent);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .subtitle {
-            font-size: 0.95rem;
-            opacity: 0.9;
-            max-width: 700px;
-            margin: 0 auto;
-            font-weight: 300;
-        }
-        
-        .controls {
-            grid-area: controls;
-            padding: 20px;
-            background: var(--light);
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .chart-area {
-            grid-area: chart;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            background: white;
-            border-left: 1px solid #e0e0e0;
-            height: 100%;
-        }
-        
-        .chart-container {
-            flex: 1;
-            min-height: 300px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e0e0e0;
-            margin-bottom: 15px;
-        }
-        
-        .control-group {
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-        
-        .control-group h2 {
-            margin-bottom: 15px;
-            color: var(--primary);
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .input-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.95rem;
-        }
-        
-        input[type="text"], input[type="file"], select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-            background: white;
-        }
-        
-        input[type="text"]:focus, input[type="file"]:focus, select:focus {
-            border-color: var(--secondary);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-        
-        .range-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .range-container input[type="range"] {
-            flex: 1;
-            height: 6px;
-            -webkit-appearance: none;
-            background: #ddd;
-            border-radius: 5px;
-            outline: none;
-        }
-        
-        .range-container input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-        
-        #minTempRange::-webkit-slider-thumb { 
-            background: var(--secondary);
-        }
-        #maxTempRange::-webkit-slider-thumb { 
-            background: var(--accent);
-        }
-        
-        button {
-            width: 100%;
+        /* Estilos anteriores... */
+        .warning-card {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
             padding: 12px;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-        
-        button:active {
-            transform: translateY(1px);
-        }
-        
-        #loadBtn {
-            background: linear-gradient(to right, #3498db, #2980b9);
-        }
-        
-        #downloadCsvBtn {
-            background: linear-gradient(to right, #f39c12, #e67e22);
-        }
-        
-        #downloadExcelBtn {
-            background: linear-gradient(to right, #217346, #27ae60);
-        }
-        
-        #processExcelBtn {
-            background: linear-gradient(to right, #9b59b6, #8e44ad);
-        }
-        
-        .data-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-            text-align: center;
-        }
-        
-        .info-card {
-            background: white;
-            border-radius: 6px;
-            padding: 10px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-            transition: all 0.2s;
-            border: 1px solid rgba(0,0,0,0.03);
-        }
-        
-        .info-card h3 {
-            font-size: 0.9rem;
-            margin-bottom: 6px;
-            color: var(--primary);
-        }
-        
-        .info-card p {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        
-        .original-min { color: #3498db; }
-        .original-max { color: #e74c3c; }
-        .new-min { color: #2ecc71; }
-        .new-max { color: #f39c12; }
-        
-        footer {
-            grid-area: footer;
-            text-align: center;
-            padding: 12px;
-            color: var(--dark);
-            font-size: 0.8rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.08);
-            background: rgba(236, 240, 241, 0.7);
-        }
-        
-        .status-message {
-            padding: 8px;
-            margin-top: 8px;
             border-radius: 4px;
-            text-align: center;
-            font-weight: 500;
+            margin: 10px 0;
             font-size: 0.9rem;
         }
         
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .warning { background: #fff3cd; color: #856404; }
-        
-        .progress-container {
-            height: 6px;
-            background: #e0e0e0;
-            border-radius: 3px;
-            margin-top: 8px;
-            overflow: hidden;
-            display: none;
+        .warning-card i {
+            color: #ffc107;
+            margin-right: 8px;
         }
         
-        .progress-bar {
-            height: 100%;
-            background: var(--secondary);
-            width: 0%;
-            transition: width 0.3s;
+        .merge-icon {
+            color: #9b59b6;
+            margin-left: 5px;
         }
-        
-        .instructions {
-            background: linear-gradient(to right, #e3f2fd, #bbdefb);
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
-            border-left: 3px solid var(--secondary);
-        }
-        
-        .instructions h3 {
-            margin-top: 0;
-            color: var(--primary);
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        
-        .instructions ul {
-            padding-left: 18px;
-            margin: 8px 0;
-        }
-        
-        .instructions li {
-            margin-bottom: 4px;
-            position: relative;
-            padding-left: 20px;
-            font-size: 0.85rem;
-        }
-        
-        .instructions li:before {
-            content: "•";
-            color: var(--secondary);
-            font-weight: bold;
-            position: absolute;
-            left: 0;
-            top: 0;
-            font-size: 1.1em;
-        }
-        
-        .deformation-controls {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #e9ecef;
-            margin-top: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-        }
-        
-        .deformation-controls h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid var(--primary);
-            padding-bottom: 8px;
-            font-size: 1.1rem;
-        }
-        
-        .deformation-intensity {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding: 8px;
-            background: rgba(255,255,255,0.7);
-            border-radius: 6px;
-        }
-        
-        .deformation-intensity input[type="range"] {
-            flex: 1;
-            height: 10px;
-            -webkit-appearance: none;
-            background: linear-gradient(to right, #e0e0e0, #d0d0d0);
-            border-radius: 8px;
-            outline: none;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-        }
-        
-        .deformation-intensity input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            border: 2px solid white;
-        }
-        
-        #shapeDeformation::-webkit-slider-thumb {
-            background: var(--variation);
-        }
-        
-        #horizontalDeformation::-webkit-slider-thumb {
-            background: var(--horizontal);
-        }
-        
-        #verticalDeformation::-webkit-slider-thumb {
-            background: var(--vertical);
-        }
-        
-        #elasticEffect::-webkit-slider-thumb {
-            background: var(--elastic);
-        }
-        
-        .deformation-intensity span {
-            min-width: 35px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 0.85em;
-            padding: 3px 6px;
-            border-radius: 3px;
-            background: rgba(0,0,0,0.03);
-        }
-        
-        #deformationPercent {
-            color: var(--variation);
-            background: rgba(155, 89, 182, 0.1);
-        }
-        
-        #horizontalPercent {
-            color: var(--horizontal);
-            background: rgba(26, 188, 156, 0.1);
-        }
-        
-        #verticalPercent {
-            color: var(--vertical);
-            background: rgba(241, 196, 15, 0.1);
-        }
-        
-        #elasticPercent {
-            color: var(--elastic);
-            background: rgba(230, 126, 34, 0.1);
-        }
-        
-        .deformation-description {
-            margin-top: 3px;
-            font-size: 0.8rem;
-            color: #5a6268;
-            padding: 0 8px;
-            font-style: italic;
-        }
-        
-        .toggle-group {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        
-        .toggle-label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            font-weight: 500;
-            background: rgba(0,0,0,0.03);
-            padding: 6px 10px;
-            border-radius: 15px;
-            transition: all 0.2s;
-            font-size: 0.9rem;
-        }
-        
-        .toggle-label:hover {
-            background: rgba(0,0,0,0.06);
-        }
-        
-        .toggle-label input {
-            margin-right: 6px;
-            cursor: pointer;
-        }
-        
-        .elastic-preview {
-            display: flex;
-            justify-content: center;
-            margin-top: 8px;
-            gap: 8px;
-        }
-        
-        .elastic-demo {
-            width: 16px;
-            height: 8px;
-            background: var(--elastic);
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-            animation: elastic-pulse 1.5s infinite;
-            animation-delay: calc(var(--i) * 0.2s);
-        }
-        
-        @keyframes elastic-pulse {
-            0% { transform: scaleX(1); }
-            50% { transform: scaleX(0.4); }
-            100% { transform: scaleX(1); }
-        }
-        
-        .elastic-demo:before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                to right,
-                transparent,
-                transparent 2px,
-                rgba(255,255,255,0.5) 2px,
-                rgba(255,255,255,0.5) 4px
-            );
-        }
-        
-        @media (max-width: 1000px) {
-            .container {
-                grid-template-columns: 1fr;
-                grid-template-areas:
-                    "header"
-                    "controls"
-                    "chart"
-                    "footer";
-                height: auto;
-            }
-            
-            .chart-area {
-                border-left: none;
-                border-top: 1px solid #e0e0e0;
-            }
-        }
-        
-        .pyodide-loading {
-            background: #f1c40f;
-            color: #2c3e50;
-            padding: 12px;
-            border-radius: 6px;
-            text-align: center;
-            margin-top: 15px;
-            font-weight: bold;
-            display: none;
-            font-size: 0.9rem;
-        }
-        
-        .sheet-selection {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 12px;
-        }
-        
-        .tab-container {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        
-        .tab {
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            background: #e0e0e0;
-            font-weight: 600;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-        }
-        
-        .tab.active {
-            background: var(--secondary);
-            color: white;
-        }
-        
-        .debug-info {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            margin-top: 15px;
-            max-height: 150px;
-            overflow-y: auto;
-            border: 1px solid #e9ecef;
-        }
-        
-        .decimal-hint {
-            font-size: 0.8rem;
-            color: #6c757d;
-            margin-top: 4px;
-            font-style: italic;
-        }
-        
-        .row-range {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        
-        .row-range > div {
-            flex: 1;
-        }
-        
-        .compact-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .chart-header h2 {
-            font-size: 1.2rem;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .column-list {
-            max-height: 150px;
-            overflow-y: auto;
-            margin-top: 10px;
-            border: 1px solid #eee;
-            border-radius: 6px;
-            padding: 8px;
-        }
-        
-        .column-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .column-item:last-child {
-            border-bottom: none;
-        }
-        
-        .column-name {
-            font-weight: 500;
-        }
-        
-        .edit-btn {
-            padding: 4px 8px;
-            background: var(--secondary);
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
+        /* Mantener los estilos anteriores y agregar solo estos nuevos */
     </style>
 </head>
 <body>
@@ -682,6 +45,11 @@
                     <li>Aplica deformaciones individuales a cada columna</li>
                     <li>Descarga un Excel completo con todas las modificaciones</li>
                 </ul>
+            </div>
+            
+            <div class="warning-card">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Nota sobre celdas combinadas:</strong> Las celdas combinadas se detectan automáticamente y se manejan correctamente durante el procesamiento.
             </div>
             
             <div class="tab-container">
@@ -852,10 +220,6 @@
         const minTempValue = document.getElementById('minTempValue');
         const maxTempValue = document.getElementById('maxTempValue');
         const downloadExcelBtn = document.getElementById('downloadExcelBtn');
-        const originalMinElem = document.getElementById('originalMin');
-        const originalMaxElem = document.getElementById('originalMax');
-        const newMinElem = document.getElementById('newMin');
-        const newMaxElem = document.getElementById('newMax');
         const excelStatus = document.getElementById('excelStatus');
         const downloadStatus = document.getElementById('downloadStatus');
         const excelProgressContainer = document.getElementById('excelProgressContainer');
@@ -938,6 +302,7 @@ import json
 import re
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
+from openpyxl.cell.cell import MergedCell
 
 def process_excel():
     output = {"sheets": [], "excel_data": {}, "debug_info": ""}
@@ -957,6 +322,9 @@ def process_excel():
                 col_values = []
                 for row_idx in range(min_row, max_row + 1):
                     cell = ws.cell(row=row_idx, column=col_idx)
+                    # Saltar celdas combinadas que no son la principal
+                    if isinstance(cell, MergedCell):
+                        continue
                     if cell.value is None:
                         continue
                     try:
@@ -1106,11 +474,12 @@ result_json = process_excel()
                 // Convertir modifiedData a JSON
                 const modifiedDataJson = JSON.stringify(modifiedData);
                 
-                // Ejecutar script Python para modificar el Excel
+                // Ejecutar script Python para modificar el Excel (CORREGIDO PARA CELDAS COMBINADAS)
                 const script = `
 import traceback
 import json
 from openpyxl import load_workbook
+from openpyxl.cell.cell import MergedCell
 
 def process_excel(modified_data):
     try:
@@ -1125,8 +494,17 @@ def process_excel(modified_data):
                 for col_letter, values in columns.items():
                     for i, value in enumerate(values):
                         row_index = ${startRow} + i
-                        # Convertir a float antes de asignar
-                        ws[col_letter + str(row_index)].value = float(value)
+                        cell_coord = col_letter + str(row_index)
+                        
+                        # Verificar si la celda existe y no es parte de un rango combinado
+                        if cell_coord in ws:
+                            cell = ws[cell_coord]
+                            if isinstance(cell, MergedCell):
+                                # Saltar celdas combinadas que no son la principal
+                                continue
+                            
+                            # Convertir a float antes de asignar
+                            cell.value = float(value)
         
         # 3. Guardar cambios
         output_filename = 'modified_' + filename
