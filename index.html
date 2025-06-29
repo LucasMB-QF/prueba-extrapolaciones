@@ -140,7 +140,7 @@
             font-size: 1.1em;
         }
         
-        input[type="text"], input[type="file"], select, input[type="number"] {
+        input[type="text"], input[type="file"], select {
             width: 100%;
             padding: 12px;
             border: 2px solid #ddd;
@@ -150,7 +150,7 @@
             background: white;
         }
         
-        input[type="text"]:focus, input[type="file"]:focus, select:focus, input[type="number"]:focus {
+        input[type="text"]:focus, input[type="file"]:focus, select:focus {
             border-color: var(--secondary);
             outline: none;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
@@ -160,6 +160,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            margin-bottom: 20px;
         }
         
         .range-container input[type="range"] {
@@ -649,7 +650,7 @@
         
         .row-range {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             margin-top: 15px;
         }
         
@@ -662,7 +663,7 @@
     <div class="container">
         <header>
             <h1><i class="fas fa-file-waveform"></i> Extrapolador Avanzado</h1>
-            <p class="subtitle">Procesa archivos Excel y CSV con deformaciones avanzadas de curvas</p>
+            <p class="subtitle">Procesa archivos Excel (.xlsx, .xlsm) y CSV con deformaciones avanzadas de curvas</p>
         </header>
         
         <div class="main-content">
@@ -688,7 +689,7 @@
                 <div class="control-group" id="excelSection">
                     <h2><i class="fas fa-file-excel"></i> Carga de Excel</h2>
                     <div class="input-group">
-                        <label for="excelFile"><i class="fas fa-file-export"></i> Seleccionar archivo Excel (.xlsx, .xlsm):</label>
+                        <label for="excelFile"><i class="fas fa-file-export"></i> Seleccionar archivo Excel:</label>
                         <input type="file" id="excelFile" accept=".xlsx,.xlsm">
                     </div>
                     
@@ -725,11 +726,11 @@
                     
                     <div class="row-range">
                         <div class="input-group">
-                            <label for="startRow"><i class="fas fa-arrow-right"></i> Fila Inicial:</label>
+                            <label for="startRow"><i class="fas fa-sort-numeric-down"></i> Fila Inicial:</label>
                             <input type="number" id="startRow" min="1" value="1">
                         </div>
                         <div class="input-group">
-                            <label for="endRow"><i class="fas fa-arrow-left"></i> Fila Final:</label>
+                            <label for="endRow"><i class="fas fa-sort-numeric-up"></i> Fila Final:</label>
                             <input type="number" id="endRow" min="1">
                         </div>
                     </div>
@@ -742,6 +743,7 @@
                         <div class="progress-bar" id="excelProgressBar"></div>
                     </div>
                     <button id="loadExcelBtn"><i class="fas fa-file-import"></i> Cargar Datos de Excel</button>
+                    <div id="excelStatus" class="status-message">Esperando archivo Excel</div>
                 </div>
                 
                 <div class="control-group" id="csvSection" style="display: none;">
@@ -758,9 +760,8 @@
                         <div class="progress-bar" id="csvProgressBar"></div>
                     </div>
                     <button id="loadCsvBtn"><i class="fas fa-file-import"></i> Cargar Datos CSV</button>
+                    <div id="csvStatus" class="status-message">Esperando archivo CSV</div>
                 </div>
-                
-                <div id="loadStatus" class="status-message">Seleccione un archivo para comenzar</div>
                 
                 <div class="control-group">
                     <h2><i class="fas fa-sliders-h"></i> Ajuste de Temperatura</h2>
@@ -926,8 +927,6 @@
         let selectedColumn = "";
         let excelData = {};
         let currentFileType = "excel"; // "excel" o "csv"
-        let currentStartRow = 1;
-        let currentEndRow = 0;
 
         // Elementos del DOM
         const excelFileInput = document.getElementById('excelFile');
@@ -948,7 +947,8 @@
         const originalMaxElem = document.getElementById('originalMax');
         const newMinElem = document.getElementById('newMin');
         const newMaxElem = document.getElementById('newMax');
-        const loadStatus = document.getElementById('loadStatus');
+        const excelStatus = document.getElementById('excelStatus');
+        const csvStatus = document.getElementById('csvStatus');
         const downloadStatus = document.getElementById('downloadStatus');
         const excelProgressContainer = document.getElementById('excelProgressContainer');
         const excelProgressBar = document.getElementById('excelProgressBar');
@@ -976,8 +976,8 @@
         // Inicializar Python con Pyodide
         async function initializePyodide() {
             pyodideLoading.style.display = 'block';
-            loadStatus.textContent = "Cargando entorno Python...";
-            loadStatus.className = "status-message warning";
+            excelStatus.textContent = "Cargando entorno Python...";
+            excelStatus.className = "status-message warning";
             
             try {
                 pyodide = await loadPyodide({
@@ -992,8 +992,8 @@
                 `);
                 
                 pyodideLoading.style.display = 'none';
-                loadStatus.textContent = "Python listo para procesar Excel";
-                loadStatus.className = "status-message success";
+                excelStatus.textContent = "Python listo para procesar Excel";
+                excelStatus.className = "status-message success";
                 
                 // Cargar archivo Excel si ya se seleccionó
                 if (excelFile) {
@@ -1001,139 +1001,105 @@
                 }
             } catch (error) {
                 pyodideLoading.style.display = 'none';
-                loadStatus.textContent = "Error al cargar Python: " + error.message;
-                loadStatus.className = "status-message error";
+                excelStatus.textContent = "Error al cargar Python: " + error.message;
+                excelStatus.className = "status-message error";
                 console.error(error);
             }
         }
 
-        // Cargar datos de Excel usando Python - MEJORADO
+        // Cargar datos de Excel usando Python
         async function loadExcelData() {
             if (!pyodide || !excelFile) return;
             
             try {
-                loadStatus.textContent = "Procesando Excel con Python...";
-                loadStatus.className = "status-message warning";
+                excelStatus.textContent = "Procesando Excel...";
+                excelStatus.className = "status-message warning";
                 excelProgressContainer.style.display = 'block';
                 excelProgressBar.style.width = '0%';
                 
-                // Leer archivo como ArrayBuffer
+                const startRow = parseInt(startRowInput.value) || 1;
+                const endRow = parseInt(endRowInput.value) || 0;
                 const arrayBuffer = await excelFile.arrayBuffer();
                 const bytes = new Uint8Array(arrayBuffer);
                 
-                // Pasar a Python
+                // Pasar archivo a Python
                 pyodide.FS.writeFile(excelFile.name, bytes);
                 
-                // Ejecutar script Python para leer el Excel
-                excelProgressBar.style.width = '30%';
-                
-                // Obtener valores de filas
-                currentStartRow = parseInt(startRowInput.value) || 1;
-                currentEndRow = parseInt(endRowInput.value) || 0;
-                
-                // Script Python mejorado para manejar diferentes estructuras
+                const filename = JSON.stringify(excelFile.name);
                 const script = `
-                    import traceback
-                    import json
-                    import re
-                    from openpyxl import load_workbook
-                    from openpyxl.utils import get_column_letter
-                    from js import console
-                    
-                    filename = '${excelFile.name}'
-                    start = ${currentStartRow}
-                    end = ${currentEndRow}
-                    sheets = []
-                    excel_data = {}
-                    debug_info = ""
-                    
+import traceback
+import json
+import re
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
+
+def process_excel():
+    output = {"sheets": [], "excel_data": {}, "debug_info": ""}
+    try:
+        start = ${startRow}
+        end = ${endRow}
+        wb = load_workbook(${filename}, data_only=True)
+        output["sheets"] = wb.sheetnames
+        output["debug_info"] += "Se encontraron {} hojas\\n".format(len(wb.sheetnames))
+        for sheet in wb.sheetnames:
+            ws = wb[sheet]
+            min_row = start
+            max_row = ws.max_row if end == 0 else min(end, ws.max_row)
+            output["debug_info"] += "\\nHoja: {} (Filas: {}-{})\\n".format(sheet, min_row, max_row)
+            for col_idx in range(1, ws.max_column + 1):
+                col_letter = get_column_letter(col_idx)
+                col_values = []
+                for row_idx in range(min_row, max_row + 1):
+                    cell = ws.cell(row=row_idx, column=col_idx)
+                    if cell.value is None:
+                        continue
                     try:
-                        debug_info += "Abriendo archivo Excel...\\n"
-                        wb = load_workbook(filename, keep_vba=True, data_only=True)
-                        sheets = list(wb.sheetnames)
-                        debug_info += f"Se encontraron {len(sheets)} hojas\\n"
-                        
-                        for sheet_name in sheets:
-                            debug_info += f"\\nProcesando hoja: {sheet_name}\\n"
-                            ws = wb[sheet_name]
-                            sheet_data = {}
-                            
-                            # Determinar el rango de filas con datos
-                            min_row = start
-                            max_row = ws.max_row if end == 0 else min(end, ws.max_row)
-                            debug_info += f"Filas: {min_row} a {max_row}\\n"
-                            
-                            # Iterar por todas las columnas
-                            for col_idx in range(1, ws.max_column + 1):
-                                col_letter = get_column_letter(col_idx)
-                                col_values = []
-                                
-                                for row_idx in range(min_row, max_row + 1):
-                                    cell = ws.cell(row=row_idx, column=col_idx)
-                                    
-                                    # Saltar celdas vacías
-                                    if cell.value is None:
-                                        continue
-                                    
-                                    try:
-                                        # Manejar valores con comas como decimales
-                                        if isinstance(cell.value, (int, float)):
-                                            num = float(cell.value)
-                                        else:
-                                            # Limpiar el string: quitar símbolos, espacios, y convertir comas a puntos
-                                            val_str = str(cell.value).strip().replace("°C", "").replace(" ", "")
-                                            val_str = re.sub(r'[^\\d.,-]', '', val_str).replace(",", ".")
-                                            num = float(val_str)
-                                        col_values.append(num)
-                                    except:
-                                        debug_info += f"  Celda {col_letter}{row_idx} inválida: '{cell.value}'\\n"
-                                
-                                if col_values.length > 0:
-                                    sheet_data[col_letter] = { 'values': col_values }
-                                    debug_info += f" - Col {col_letter}: {len(col_values)} valores\\n"
-                            
-                            excel_data[sheet_name] = sheet_data
-                        
-                        debug_info += "\\nProcesamiento completado con éxito\\n"
-                    except Exception as e:
-                        debug_info += "\\nERROR: " + str(e) + "\\n"
-                        debug_info += traceback.format_exc()
-                        console.error(debug_info)
-                    
-                    {
-                        'sheets': sheets,
-                        'excel_data': excel_data,
-                        'debug_info': debug_info
-                    }
-                `;
-                
-                const result = pyodide.runPython(script);
+                        if isinstance(cell.value, (int, float)):
+                            num = float(cell.value)
+                        else:
+                            val = str(cell.value).strip().replace("°C", "").replace(" ", "")
+                            val = re.sub(r'[^\\d.,-]', '', val).replace(",", ".")
+                            num = float(val)
+                        col_values.append(num)
+                    except:
+                        output["debug_info"] += "  Celda {}{} inválida: '{}'\\n".format(col_letter, row_idx, cell.value)
+                if col_values:
+                    output["excel_data"].setdefault(sheet, {})[col_letter] = col_values
+                    output["debug_info"] += "  Col {}: {} valores\\n".format(col_letter, len(col_values))
+        output["debug_info"] += "\\nProcesamiento completado"
+    except Exception as e:
+        output["debug_info"] += "\\nERROR: {}\\n".format(str(e)) + traceback.format_exc()
+    return json.dumps(output)
+
+result_json = process_excel()
+`.replace('${startRow}', startRow).replace('${endRow}', endRow).replace('${filename}', filename);
+
+                // Ejecutar script Python
+                await pyodide.runPythonAsync(script);
+                const result = pyodide.globals.get('result_json');
+                const parsed = JSON.parse(result);
+                debugInfo.textContent = parsed.debug_info;
                 
                 excelProgressBar.style.width = '70%';
                 
-                // Mostrar información de depuración
-                if (result && result.debug_info) {
-                    debugInfo.textContent = result.debug_info;
-                }
-                
                 // Verificar si se obtuvieron datos
-                if (result && result.excel_data) {
-                    excelData = result.excel_data.toJs();
+                if (parsed && parsed.excel_data) {
+                    excelData = parsed.excel_data;
                 } else {
                     throw new Error("El script de Python no retornó datos válidos");
                 }
                 
                 // Actualizar selector de hojas
                 sheetSelect.innerHTML = '<option value="">-- Seleccionar hoja --</option>';
-                result.sheets.forEach(sheet => {
+                parsed.sheets.forEach(sheet => {
                     const option = document.createElement('option');
                     option.value = sheet;
                     option.textContent = sheet;
                     sheetSelect.appendChild(option);
                 });
                 
-                loadStatus.textContent = "Excel cargado correctamente";
-                loadStatus.className = "status-message success";
+                excelStatus.textContent = "Excel cargado correctamente";
+                excelStatus.className = "status-message success";
                 excelProgressBar.style.width = '100%';
                 
                 // Manejar selección de hoja
@@ -1153,7 +1119,7 @@
                         const firstCol = Object.keys(excelData[selectedSheet])[0];
                         if (firstCol) {
                             columnSelect.value = firstCol;
-                            originalData = excelData[selectedSheet][firstCol].values;
+                            originalData = excelData[selectedSheet][firstCol];
                             updateDataInfo();
                             applyShapeDeformation();
                         }
@@ -1164,15 +1130,15 @@
                 columnSelect.onchange = function() {
                     selectedColumn = this.value;
                     if (selectedSheet && selectedColumn && excelData[selectedSheet][selectedColumn]) {
-                        originalData = excelData[selectedSheet][selectedColumn].values;
+                        originalData = excelData[selectedSheet][selectedColumn];
                         updateDataInfo();
                         applyShapeDeformation();
                     }
                 };
                 
                 // Seleccionar primera hoja por defecto
-                if (result.sheets.length > 0) {
-                    sheetSelect.value = result.sheets[0];
+                if (parsed.sheets.length > 0) {
+                    sheetSelect.value = parsed.sheets[0];
                     sheetSelect.dispatchEvent(new Event('change'));
                 }
                 
@@ -1181,26 +1147,26 @@
                 }, 1000);
                 
             } catch (error) {
-                loadStatus.textContent = "Error al procesar Excel: " + error.message;
-                loadStatus.className = "status-message error";
+                excelStatus.textContent = "Error al procesar Excel: " + error.message;
+                excelStatus.className = "status-message error";
                 console.error(error);
                 excelProgressContainer.style.display = 'none';
             }
         }
 
-        // Cargar archivo CSV - MEJORADO
+        // Cargar archivo CSV
         function loadCSV() {
             const file = csvFileInput.files[0];
             if (!file) {
-                loadStatus.textContent = "Error: Por favor, selecciona un archivo CSV";
-                loadStatus.className = "status-message error";
+                csvStatus.textContent = "Error: Por favor, selecciona un archivo CSV";
+                csvStatus.className = "status-message error";
                 return;
             }
             
             csvProgressContainer.style.display = 'block';
             csvProgressBar.style.width = '0%';
-            loadStatus.textContent = "Procesando datos CSV...";
-            loadStatus.className = "status-message warning";
+            csvStatus.textContent = "Procesando datos CSV...";
+            csvStatus.className = "status-message warning";
             
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -1249,16 +1215,16 @@
                     // Realizar extrapolación inicial
                     updateExtrapolation();
                     
-                    loadStatus.textContent = `Datos CSV cargados: ${originalData.length} mediciones`;
-                    loadStatus.className = "status-message success";
+                    csvStatus.textContent = `Datos CSV cargados: ${originalData.length} mediciones`;
+                    csvStatus.className = "status-message success";
                     
                     setTimeout(() => {
                         csvProgressContainer.style.display = 'none';
                     }, 1000);
                     
                 } catch (error) {
-                    loadStatus.textContent = 'Error al procesar el archivo: ' + error.message;
-                    loadStatus.className = "status-message error";
+                    csvStatus.textContent = 'Error al procesar el archivo: ' + error.message;
+                    csvStatus.className = "status-message error";
                     csvProgressContainer.style.display = 'none';
                     console.error(error);
                 }
@@ -1292,23 +1258,21 @@
                 // Ejecutar script Python para modificar el Excel
                 await pyodide.runPythonAsync(`
                     from openpyxl import load_workbook
-                    from js import deformedData, excelFile, selectedSheet, selectedColumn, startRow
+                    from js import deformedData, excelFile, selectedSheet, selectedColumn
                     import json
                     
                     filename = excelFile.name
-                    wb = load_workbook(filename, keep_vba=True)
+                    wb = load_workbook(filename, keep_vba=True, data_only=True)
                     ws = wb[selectedSheet]
                     
                     # Convertir datos deformados a float
                     deformed_values = [float(x) for x in json.loads(deformedData)]
                     
                     # Actualizar la columna seleccionada
-                    for i, value in enumerate(deformed_values, start=1):
-                        row_index = ${currentStartRow} + i - 1
-                        if row_index <= ws.max_row:
-                            cell = ws[selectedColumn + str(row_index)]
-                            # Convertir a string con coma como separador decimal
-                            cell.value = str(value).replace('.', ',')
+                    for i, value in enumerate(deformed_values, start=2):
+                        cell = ws[selectedColumn + str(i)]
+                        # Convertir a string con coma como separador decimal
+                        cell.value = str(value).replace('.', ',')
                     
                     # Guardar el archivo modificado
                     output_filename = 'modified_' + filename
@@ -1418,7 +1382,7 @@
                 excelSection.style.display = 'block';
                 csvSection.style.display = 'none';
                 currentFileType = "excel";
-                loadStatus.textContent = "Modo Excel activado";
+                excelStatus.textContent = "Modo Excel activado";
             });
             
             csvTab.addEventListener('click', function() {
@@ -1427,7 +1391,7 @@
                 csvSection.style.display = 'block';
                 excelSection.style.display = 'none';
                 currentFileType = "csv";
-                loadStatus.textContent = "Modo CSV activado";
+                csvStatus.textContent = "Modo CSV activado";
             });
             
             // Configurar eventos
@@ -1447,8 +1411,8 @@
                 if (excelFile && pyodide) {
                     loadExcelData();
                 } else if (!excelFile) {
-                    loadStatus.textContent = "Seleccione un archivo Excel primero";
-                    loadStatus.className = "status-message error";
+                    excelStatus.textContent = "Seleccione un archivo Excel primero";
+                    excelStatus.className = "status-message error";
                 }
             });
             
@@ -1456,8 +1420,8 @@
                 if (csvFile) {
                     loadCSV();
                 } else {
-                    loadStatus.textContent = "Seleccione un archivo CSV primero";
-                    loadStatus.className = "status-message error";
+                    csvStatus.textContent = "Seleccione un archivo CSV primero";
+                    csvStatus.className = "status-message error";
                 }
             });
             
@@ -1567,8 +1531,10 @@
             initChart();
             
             // Mensaje inicial
-            loadStatus.textContent = "Seleccione un archivo para comenzar";
-            loadStatus.className = "status-message warning";
+            excelStatus.textContent = "Seleccione un archivo Excel para comenzar";
+            excelStatus.className = "status-message warning";
+            csvStatus.textContent = "Seleccione un archivo CSV para comenzar";
+            csvStatus.className = "status-message warning";
         });
 
         // Inicializar gráfico
