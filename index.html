@@ -56,7 +56,7 @@
   async function initializePyodide() {
     pyodide = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/" });
     await pyodide.loadPackage(['micropip']);
-    await pyodide.runPythonAsync(`import micropip; await micropip.install('openpyxl')`);
+    await pyodide.runPythonAsync(`import micropip\nawait micropip.install('openpyxl')`);
     excelStatus.textContent = "Python listo para procesar Excel";
     excelStatus.className = "status-message success";
   }
@@ -73,49 +73,57 @@
       const bytes = new Uint8Array(arrayBuffer);
       pyodide.FS.writeFile(excelFile.name, bytes);
 
-      const result = await pyodide.runPythonAsync(`
-        import traceback, json, re
-        from openpyxl import load_workbook
-        from openpyxl.utils import get_column_letter
-        from js import startRow, endRow
+      const filename = JSON.stringify(excelFile.name);
+      const script = `
+import traceback
+import json
+import re
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
 
-        def process_excel():
-          output = {"sheets": [], "excel_data": {}, "debug_info": ""}
-          try:
-            start = int(startRow)
-            end = int(endRow)
-            wb = load_workbook("${excelFile.name}", data_only=True)
-            output["sheets"] = wb.sheetnames
-            output["debug_info"] += f"Se encontraron {len(wb.sheetnames)} hojas\n"
-            for sheet in wb.sheetnames:
-              ws = wb[sheet]
-              min_row = start
-              max_row = ws.max_row if end == 0 else min(end, ws.max_row)
-              output["debug_info"] += f"\nHoja: {sheet} (Filas: {min_row}-{max_row})\n"
-              for col_idx in range(1, ws.max_column + 1):
+def process_excel():
+    output = {"sheets": [], "excel_data": {}, "debug_info": ""}
+    try:
+        start = ${startRow}
+        end = ${endRow}
+        wb = load_workbook(${filename}, data_only=True)
+        output["sheets"] = wb.sheetnames
+        output["debug_info"] += "Se encontraron {} hojas\\n".format(len(wb.sheetnames))
+        for sheet in wb.sheetnames:
+            ws = wb[sheet]
+            min_row = start
+            max_row = ws.max_row if end == 0 else min(end, ws.max_row)
+            output["debug_info"] += "\\nHoja: {} (Filas: {}-{})\\n".format(sheet, min_row, max_row)
+            for col_idx in range(1, ws.max_column + 1):
                 col_letter = get_column_letter(col_idx)
                 col_values = []
                 for row_idx in range(min_row, max_row + 1):
-                  cell = ws.cell(row=row_idx, column=col_idx)
-                  if cell.value is None: continue
-                  try:
-                    val = str(cell.value).strip().replace("\u00b0C", "").replace(" ", "")
-                    val = re.sub(r'[^\\d.,-]', '', val).replace(",", ".")
-                    num = float(val)
-                    col_values.append(num)
-                  except:
-                    output["debug_info"] += f"  Celda {col_letter}{row_idx} inválida: '{cell.value}'\n"
+                    cell = ws.cell(row=row_idx, column=col_idx)
+                    if cell.value is None:
+                        continue
+                    try:
+                        if isinstance(cell.value, (int, float)):
+                            num = float(cell.value)
+                        else:
+                            val = str(cell.value).strip().replace("°C", "").replace(" ", "")
+                            val = re.sub(r'[^\\d.,-]', '', val).replace(",", ".")
+                            num = float(val)
+                        col_values.append(num)
+                    except:
+                        output["debug_info"] += "  Celda {}{} inválida: '{}'\\n".format(col_letter, row_idx, cell.value)
                 if col_values:
-                  output["excel_data"].setdefault(sheet, {})[col_letter] = col_values
-                  output["debug_info"] += f"  Col {col_letter}: {len(col_values)} valores\n"
-            output["debug_info"] += "\nProcesamiento completado"
-          except Exception as e:
-            output["debug_info"] += f"\nERROR: {str(e)}\n" + traceback.format_exc()
-          return json.dumps(output)
+                    output["excel_data"].setdefault(sheet, {})[col_letter] = col_values
+                    output["debug_info"] += "  Col {}: {} valores\\n".format(col_letter, len(col_values))
+        output["debug_info"] += "\\nProcesamiento completado"
+    except Exception as e:
+        output["debug_info"] += "\\nERROR: {}\\n".format(str(e)) + traceback.format_exc()
+    return json.dumps(output)
 
-        process_excel()
-      `, { startRow, endRow });
+result_json = process_excel()
+`;
 
+      await pyodide.runPythonAsync(script);
+      const result = pyodide.globals.get('result_json');
       const parsed = JSON.parse(result);
       debugInfo.textContent = parsed.debug_info;
       excelStatus.textContent = "Archivo procesado";
@@ -123,6 +131,7 @@
     } catch (err) {
       excelStatus.textContent = "Error: " + err.message;
       excelStatus.className = "status-message error";
+      debugInfo.textContent = "";
     }
   }
 
