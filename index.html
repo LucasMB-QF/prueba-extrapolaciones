@@ -631,29 +631,61 @@
             align-items: center;
             gap: 8px;
         }
+        
+        .column-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 8px;
+        }
+        
+        .column-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .column-item:last-child {
+            border-bottom: none;
+        }
+        
+        .column-name {
+            font-weight: 500;
+        }
+        
+        .edit-btn {
+            padding: 4px 8px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1><i class="fas fa-file-waveform"></i> Extrapolador Avanzado</h1>
-            <p class="subtitle">Procesa archivos Excel (.xlsx, .xlsm) y CSV con deformaciones avanzadas de curvas</p>
+            <p class="subtitle">Edita múltiples hojas y columnas en Excel con deformaciones avanzadas</p>
         </header>
         
         <div class="controls">
             <div class="instructions">
                 <h3><i class="fas fa-lightbulb"></i> ¡Todo en uno!</h3>
                 <ul>
-                    <li>Sube archivos Excel o CSV</li>
-                    <li>Ajusta los parámetros de deformación</li>
-                    <li>Visualiza cambios en tiempo real</li>
-                    <li>Descarga resultados en Excel o CSV</li>
+                    <li>Edita múltiples hojas y columnas en un solo archivo</li>
+                    <li>Aplica deformaciones individuales a cada columna</li>
+                    <li>Descarga un Excel completo con todas las modificaciones</li>
                 </ul>
             </div>
             
             <div class="tab-container">
                 <div class="tab active" id="excelTab">Excel (.xlsx, .xlsm)</div>
-                <div class="tab" id="csvTab">CSV</div>
             </div>
             
             <div class="control-group" id="excelSection">
@@ -672,26 +704,8 @@
                     </div>
                     
                     <div class="input-group">
-                        <label for="columnSelect"><i class="fas fa-columns"></i> Columna:</label>
-                        <select id="columnSelect">
-                            <option value="">-- Seleccionar --</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-                            <option value="E">E</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="row-range">
-                    <div class="input-group">
                         <label for="startRow"><i class="fas fa-sort-numeric-down"></i> Fila Inicial:</label>
                         <input type="number" id="startRow" min="1" value="1">
-                    </div>
-                    <div class="input-group">
-                        <label for="endRow"><i class="fas fa-sort-numeric-up"></i> Fila Final:</label>
-                        <input type="number" id="endRow" min="1">
                     </div>
                 </div>
                 
@@ -702,22 +716,15 @@
                 <div id="excelStatus" class="status-message">Esperando archivo Excel</div>
             </div>
             
-            <div class="control-group" id="csvSection" style="display: none;">
-                <h2><i class="fas fa-file-csv"></i> Carga de CSV</h2>
-                <div class="input-group">
-                    <label for="csvFile"><i class="fas fa-file-import"></i> Archivo CSV:</label>
-                    <input type="file" id="csvFile" accept=".csv">
+            <div class="control-group" id="columnsSection" style="display: none;">
+                <h2><i class="fas fa-columns"></i> Columnas Disponibles</h2>
+                <div id="columnsList" class="column-list">
+                    <!-- Las columnas se mostrarán aquí -->
                 </div>
-                
-                <div class="progress-container" id="csvProgressContainer">
-                    <div class="progress-bar" id="csvProgressBar"></div>
-                </div>
-                <button id="loadCsvBtn"><i class="fas fa-file-import"></i> Cargar Datos</button>
-                <div id="csvStatus" class="status-message">Esperando archivo CSV</div>
             </div>
             
-            <div class="control-group">
-                <h2><i class="fas fa-sliders-h"></i> Ajuste de Temperatura</h2>
+            <div class="control-group" id="deformationSection" style="display: none;">
+                <h2><i class="fas fa-sliders-h"></i> Deformación de Datos</h2>
                 <div class="input-group">
                     <label for="minTemp"><i class="fas fa-temperature-low"></i> Mínima:</label>
                     <div class="compact-group">
@@ -735,60 +742,6 @@
                     </div>
                     <input type="range" id="maxTempRange" min="0" max="60" step="0.5">
                 </div>
-            </div>
-            
-            <div class="control-group">
-                <h2><i class="fas fa-file-download"></i> Exportar Resultados</h2>
-                <button id="downloadCsvBtn"><i class="fas fa-file-csv"></i> Descargar CSV</button>
-                <button id="downloadExcelBtn"><i class="fas fa-file-excel"></i> Descargar Excel</button>
-                <div id="downloadStatus" class="status-message"></div>
-            </div>
-            
-            <div class="data-info">
-                <div class="info-card">
-                    <h3><i class="fas fa-thermometer-quarter"></i> Min Original</h3>
-                    <p id="originalMin" class="original-min">--</p>
-                </div>
-                <div class="info-card">
-                    <h3><i class="fas fa-thermometer-full"></i> Max Original</h3>
-                    <p id="originalMax" class="original-max">--</p>
-                </div>
-                <div class="info-card">
-                    <h3><i class="fas fa-thermometer-quarter"></i> Nuevo Min</h3>
-                    <p id="newMin" class="new-min">--</p>
-                </div>
-                <div class="info-card">
-                    <h3><i class="fas fa-thermometer-full"></i> Nuevo Max</h3>
-                    <p id="newMax" class="new-max">--</p>
-                </div>
-            </div>
-            
-            <div id="pyodideLoading" class="pyodide-loading">
-                <i class="fas fa-sync fa-spin"></i> Inicializando Python...
-            </div>
-        </div>
-        
-        <div class="chart-area">
-            <div class="chart-header">
-                <h2><i class="fas fa-chart-line"></i> Visualización de Datos</h2>
-                <div class="toggle-group">
-                    <label class="toggle-label">
-                        <input type="checkbox" id="smoothCurve" checked>
-                        <i class="fas fa-wave-circle"></i> Suavizar
-                    </label>
-                    <label class="toggle-label">
-                        <input type="checkbox" id="autoAdjust" checked>
-                        <i class="fas fa-magic"></i> Auto
-                    </label>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <canvas id="temperatureChart"></canvas>
-            </div>
-            
-            <div class="deformation-controls">
-                <h3><i class="fas fa-sliders-h"></i> Controles de Deformación</h3>
                 
                 <div class="deformation-intensity">
                     <span>Forma</span>
@@ -813,6 +766,43 @@
                     <input type="range" id="elasticEffect" min="0" max="100" value="70">
                     <span id="elasticPercent">70%</span>
                 </div>
+                
+                <div class="toggle-group">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="smoothCurve" checked>
+                        <i class="fas fa-wave-circle"></i> Suavizar curva
+                    </label>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="autoAdjust" checked>
+                        <i class="fas fa-magic"></i> Ajuste automático
+                    </label>
+                </div>
+                
+                <button id="applyDeformationBtn"><i class="fas fa-cogs"></i> Aplicar Deformación</button>
+                <div id="deformationStatus" class="status-message"></div>
+            </div>
+            
+            <div class="control-group">
+                <h2><i class="fas fa-file-download"></i> Exportar Resultados</h2>
+                <button id="downloadExcelBtn"><i class="fas fa-file-excel"></i> Descargar Excel Modificado</button>
+                <div id="downloadStatus" class="status-message"></div>
+            </div>
+            
+            <div id="pyodideLoading" class="pyodide-loading">
+                <i class="fas fa-sync fa-spin"></i> Inicializando Python...
+            </div>
+        </div>
+        
+        <div class="chart-area">
+            <div class="chart-header">
+                <h2><i class="fas fa-chart-line"></i> Visualización de Datos</h2>
+                <div id="currentColumnInfo" class="info-card" style="padding: 8px; text-align: center;">
+                    Hoja: <span id="currentSheetName">--</span> | Columna: <span id="currentColumnName">--</span>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="temperatureChart"></canvas>
             </div>
             
             <div class="debug-info">
@@ -822,13 +812,13 @@
         </div>
         
         <footer>
-            <p><i class="fas fa-info-circle"></i> Extrapolador Avanzado | Procesa cualquier tipo de datos</p>
+            <p><i class="fas fa-info-circle"></i> Extrapolador Avanzado | Edición completa de Excel</p>
         </footer>
     </div>
 
     <script>
         // Variables globales
-        let originalData = [];
+        let originalData = {};
         let minOriginal = 0;
         let maxOriginal = 0;
         let minTemp = 0;
@@ -843,38 +833,33 @@
         let autoAdjust = true;
         let pyodide = null;
         let excelFile = null;
-        let csvFile = null;
         let selectedSheet = "";
         let selectedColumn = "";
-        let excelData = {};
-        let currentFileType = "excel"; // "excel" o "csv"
+        let startRow = 1;
+        let modifiedData = {};
+        let currentSheetName = "";
+        let currentColumnName = "";
 
         // Elementos del DOM
         const excelFileInput = document.getElementById('excelFile');
-        const csvFileInput = document.getElementById('csvFile');
         const sheetSelect = document.getElementById('sheetSelect');
-        const columnSelect = document.getElementById('columnSelect');
+        const startRowInput = document.getElementById('startRow');
         const loadExcelBtn = document.getElementById('loadExcelBtn');
-        const loadCsvBtn = document.getElementById('loadCsvBtn');
         const minTempInput = document.getElementById('minTemp');
         const maxTempInput = document.getElementById('maxTemp');
         const minTempRange = document.getElementById('minTempRange');
         const maxTempRange = document.getElementById('maxTempRange');
         const minTempValue = document.getElementById('minTempValue');
         const maxTempValue = document.getElementById('maxTempValue');
-        const downloadCsvBtn = document.getElementById('downloadCsvBtn');
         const downloadExcelBtn = document.getElementById('downloadExcelBtn');
         const originalMinElem = document.getElementById('originalMin');
         const originalMaxElem = document.getElementById('originalMax');
         const newMinElem = document.getElementById('newMin');
         const newMaxElem = document.getElementById('newMax');
         const excelStatus = document.getElementById('excelStatus');
-        const csvStatus = document.getElementById('csvStatus');
         const downloadStatus = document.getElementById('downloadStatus');
         const excelProgressContainer = document.getElementById('excelProgressContainer');
         const excelProgressBar = document.getElementById('excelProgressBar');
-        const csvProgressContainer = document.getElementById('csvProgressContainer');
-        const csvProgressBar = document.getElementById('csvProgressBar');
         const shapeDeformationSlider = document.getElementById('shapeDeformation');
         const horizontalDeformationSlider = document.getElementById('horizontalDeformation');
         const verticalDeformationSlider = document.getElementById('verticalDeformation');
@@ -887,12 +872,13 @@
         const autoAdjustCheckbox = document.getElementById('autoAdjust');
         const pyodideLoading = document.getElementById('pyodideLoading');
         const debugInfo = document.getElementById('debugContent');
-        const excelTab = document.getElementById('excelTab');
-        const csvTab = document.getElementById('csvTab');
-        const excelSection = document.getElementById('excelSection');
-        const csvSection = document.getElementById('csvSection');
-        const startRowInput = document.getElementById('startRow');
-        const endRowInput = document.getElementById('endRow');
+        const columnsList = document.getElementById('columnsList');
+        const columnsSection = document.getElementById('columnsSection');
+        const deformationSection = document.getElementById('deformationSection');
+        const applyDeformationBtn = document.getElementById('applyDeformationBtn');
+        const deformationStatus = document.getElementById('deformationStatus');
+        const currentSheetNameElem = document.getElementById('currentSheetName');
+        const currentColumnNameElem = document.getElementById('currentColumnName');
 
         // Inicializar Python con Pyodide
         async function initializePyodide() {
@@ -938,8 +924,7 @@
                 excelProgressContainer.style.display = 'block';
                 excelProgressBar.style.width = '0%';
                 
-                const startRow = parseInt(startRowInput.value) || 1;
-                const endRow = parseInt(endRowInput.value) || 0;
+                startRow = parseInt(startRowInput.value) || 1;
                 const arrayBuffer = await excelFile.arrayBuffer();
                 const bytes = new Uint8Array(arrayBuffer);
                 
@@ -958,15 +943,15 @@ def process_excel():
     output = {"sheets": [], "excel_data": {}, "debug_info": ""}
     try:
         start = ${startRow}
-        end = ${endRow}
         wb = load_workbook(${filename}, data_only=True)
         output["sheets"] = wb.sheetnames
         output["debug_info"] += "Se encontraron {} hojas\\n".format(len(wb.sheetnames))
         for sheet in wb.sheetnames:
             ws = wb[sheet]
             min_row = start
-            max_row = ws.max_row if end == 0 else min(end, ws.max_row)
+            max_row = ws.max_row
             output["debug_info"] += "\\nHoja: {} (Filas: {}-{})\\n".format(sheet, min_row, max_row)
+            sheet_data = {}
             for col_idx in range(1, ws.max_column + 1):
                 col_letter = get_column_letter(col_idx)
                 col_values = []
@@ -985,15 +970,16 @@ def process_excel():
                     except:
                         output["debug_info"] += "  Celda {}{} inválida: '{}'\\n".format(col_letter, row_idx, cell.value)
                 if col_values:
-                    output["excel_data"].setdefault(sheet, {})[col_letter] = col_values
+                    sheet_data[col_letter] = col_values
                     output["debug_info"] += "  Col {}: {} valores\\n".format(col_letter, len(col_values))
+            output["excel_data"][sheet] = sheet_data
         output["debug_info"] += "\\nProcesamiento completado"
     except Exception as e:
         output["debug_info"] += "\\nERROR: {}\\n".format(str(e)) + traceback.format_exc()
     return json.dumps(output)
 
 result_json = process_excel()
-`.replace('${startRow}', startRow).replace('${endRow}', endRow).replace('${filename}', filename);
+`.replace('${startRow}', startRow).replace('${filename}', filename);
 
                 // Ejecutar script Python
                 await pyodide.runPythonAsync(script);
@@ -1005,7 +991,8 @@ result_json = process_excel()
                 
                 // Verificar si se obtuvieron datos
                 if (parsed && parsed.excel_data) {
-                    excelData = parsed.excel_data;
+                    originalData = parsed.excel_data;
+                    modifiedData = JSON.parse(JSON.stringify(originalData)); // Copia inicial
                 } else {
                     throw new Error("El script de Python no retornó datos válidos");
                 }
@@ -1023,45 +1010,8 @@ result_json = process_excel()
                 excelStatus.className = "status-message success";
                 excelProgressBar.style.width = '100%';
                 
-                // Manejar selección de hoja
-                sheetSelect.onchange = function() {
-                    selectedSheet = this.value;
-                    if (selectedSheet && excelData[selectedSheet]) {
-                        // Actualizar selector de columnas
-                        columnSelect.innerHTML = '<option value="">-- Seleccionar columna --</option>';
-                        Object.keys(excelData[selectedSheet]).forEach(col => {
-                            const option = document.createElement('option');
-                            option.value = col;
-                            option.textContent = col;
-                            columnSelect.appendChild(option);
-                        });
-                        
-                        // Seleccionar primera columna por defecto
-                        const firstCol = Object.keys(excelData[selectedSheet])[0];
-                        if (firstCol) {
-                            columnSelect.value = firstCol;
-                            originalData = excelData[selectedSheet][firstCol];
-                            updateDataInfo();
-                            applyShapeDeformation();
-                        }
-                    }
-                };
-                
-                // Manejar selección de columna
-                columnSelect.onchange = function() {
-                    selectedColumn = this.value;
-                    if (selectedSheet && selectedColumn && excelData[selectedSheet][selectedColumn]) {
-                        originalData = excelData[selectedSheet][selectedColumn];
-                        updateDataInfo();
-                        applyShapeDeformation();
-                    }
-                };
-                
-                // Seleccionar primera hoja por defecto
-                if (parsed.sheets.length > 0) {
-                    sheetSelect.value = parsed.sheets[0];
-                    sheetSelect.dispatchEvent(new Event('change'));
-                }
+                // Mostrar sección de columnas
+                columnsSection.style.display = 'block';
                 
                 setTimeout(() => {
                     excelProgressContainer.style.display = 'none';
@@ -1070,94 +1020,74 @@ result_json = process_excel()
             } catch (error) {
                 excelStatus.textContent = "Error al procesar Excel: " + error.message;
                 excelStatus.className = "status-message error";
-                console.error(error);
                 excelProgressContainer.style.display = 'none';
+                console.error(error);
             }
         }
 
-        // Cargar archivo CSV
-        function loadCSV() {
-            const file = csvFileInput.files[0];
-            if (!file) {
-                csvStatus.textContent = "Error: Por favor, selecciona un archivo CSV";
-                csvStatus.className = "status-message error";
-                return;
-            }
+        // Mostrar columnas disponibles para una hoja
+        function showColumnsForSheet() {
+            selectedSheet = sheetSelect.value;
+            if (!selectedSheet || !originalData[selectedSheet]) return;
             
-            csvProgressContainer.style.display = 'block';
-            csvProgressBar.style.width = '0%';
-            csvStatus.textContent = "Procesando datos CSV...";
-            csvStatus.className = "status-message warning";
+            columnsList.innerHTML = '';
             
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const content = e.target.result;
-                    
-                    // Procesar líneas del CSV
-                    const lines = content.split('\n');
-                    originalData = [];
-                    
-                    // Procesar cada línea
-                    for (let i = 0; i < lines.length; i++) {
-                        // Actualizar barra de progreso
-                        const progress = Math.round((i / lines.length) * 100);
-                        csvProgressBar.style.width = `${progress}%`;
-                        
-                        let line = lines[i].trim();
-                        if (!line) continue;
-                        
-                        // Manejar valores con comas como decimales
-                        line = line.replace(',', '.');
-                        
-                        // Convertir a número
-                        const value = parseFloat(line);
-                        
-                        if (!isNaN(value)) {
-                            originalData.push(value);
-                        }
-                    }
-                    
-                    if (originalData.length === 0) {
-                        throw new Error('El archivo no contiene datos válidos. Usa números con coma decimal (ej: 23,5)');
-                    }
-                    
-                    // Calcular min y max originales
-                    minOriginal = Math.min(...originalData);
-                    maxOriginal = Math.max(...originalData);
-                    
-                    // Establecer valores iniciales para extrapolación
-                    minTemp = minOriginal;
-                    maxTemp = maxOriginal;
-                    
-                    // Actualizar información
-                    updateDataInfo();
-                    
-                    // Realizar extrapolación inicial
-                    updateExtrapolation();
-                    
-                    csvStatus.textContent = `Datos CSV cargados: ${originalData.length} mediciones`;
-                    csvStatus.className = "status-message success";
-                    
-                    setTimeout(() => {
-                        csvProgressContainer.style.display = 'none';
-                    }, 1000);
-                    
-                } catch (error) {
-                    csvStatus.textContent = 'Error al procesar el archivo: ' + error.message;
-                    csvStatus.className = "status-message error";
-                    csvProgressContainer.style.display = 'none';
-                    console.error(error);
-                }
-            };
+            Object.keys(originalData[selectedSheet]).forEach(col => {
+                const columnItem = document.createElement('div');
+                columnItem.className = 'column-item';
+                columnItem.innerHTML = `
+                    <div class="column-name">Columna ${col}</div>
+                    <div class="edit-btn" data-col="${col}">Editar</div>
+                `;
+                columnsList.appendChild(columnItem);
+            });
             
-            reader.readAsText(file);
+            // Agregar eventos a los botones de edición
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    selectedColumn = this.getAttribute('data-col');
+                    currentSheetName = selectedSheet;
+                    currentColumnName = selectedColumn;
+                    currentSheetNameElem.textContent = selectedSheet;
+                    currentColumnNameElem.textContent = selectedColumn;
+                    
+                    // Mostrar sección de deformación
+                    deformationSection.style.display = 'block';
+                    
+                    // Cargar datos para edición
+                    loadDataForEditing();
+                });
+            });
+        }
+
+        // Cargar datos para edición
+        function loadDataForEditing() {
+            if (!selectedSheet || !selectedColumn) return;
+            
+            const columnData = originalData[selectedSheet][selectedColumn];
+            
+            // Calcular min y max originales
+            minOriginal = Math.min(...columnData);
+            maxOriginal = Math.max(...columnData);
+            
+            minTemp = minOriginal;
+            maxTemp = maxOriginal;
+            
+            minTempInput.value = minTemp.toFixed(1).replace('.', ',');
+            maxTempInput.value = maxTemp.toFixed(1).replace('.', ',');
+            minTempRange.value = minTemp;
+            maxTempRange.value = maxTemp;
+            minTempValue.textContent = minTemp.toFixed(1).replace('.', ',') + "°C";
+            maxTempValue.textContent = maxTemp.toFixed(1).replace('.', ',') + "°C";
+            
+            // Actualizar gráfico
+            updateChart(columnData, columnData);
         }
 
         // Procesar Excel con los datos deformados
         async function processExcel() {
-            if (!pyodide || !excelFile || !selectedSheet || !selectedColumn) {
-                downloadStatus.textContent = "Seleccione archivo, hoja y columna";
+            if (!pyodide || !excelFile) {
+                downloadStatus.textContent = "Seleccione un archivo Excel primero";
                 downloadStatus.className = "status-message error";
                 return;
             }
@@ -1166,9 +1096,6 @@ result_json = process_excel()
                 downloadStatus.textContent = "Procesando Excel con Python...";
                 downloadStatus.className = "status-message warning";
                 
-                // Obtener datos deformados
-                const deformedData = temperatureChart.data.datasets[1].data;
-                
                 // Crear array de bytes del archivo original
                 const arrayBuffer = await excelFile.arrayBuffer();
                 const bytes = new Uint8Array(arrayBuffer);
@@ -1176,34 +1103,43 @@ result_json = process_excel()
                 // Pasar a Python
                 pyodide.FS.writeFile(excelFile.name, bytes);
                 
+                // Convertir modifiedData a JSON
+                const modifiedDataJson = JSON.stringify(modifiedData);
+                
                 // Ejecutar script Python para modificar el Excel
-                await pyodide.runPythonAsync(`
-                    from openpyxl import load_workbook
-                    from js import deformedData, excelFile, selectedSheet, selectedColumn
-                    import json
-                    
-                    filename = excelFile.name
-                    wb = load_workbook(filename, keep_vba=True, data_only=True)
-                    ws = wb[selectedSheet]
-                    
-                    # Convertir datos deformados a float
-                    deformed_values = [float(x) for x in json.loads(deformedData)]
-                    
-                    # Actualizar la columna seleccionada
-                    for i, value in enumerate(deformed_values, start=2):
-                        cell = ws[selectedColumn + str(i)]
-                        # Convertir a string con coma como separador decimal
-                        cell.value = str(value).replace('.', ',')
-                    
-                    # Guardar el archivo modificado
-                    output_filename = 'modified_' + filename
-                    wb.save(output_filename)
-                `, {
-                    deformedData: JSON.stringify(deformedData),
-                    excelFile: { name: excelFile.name },
-                    selectedSheet: selectedSheet,
-                    selectedColumn: selectedColumn
-                });
+                const script = `
+import traceback
+import json
+from openpyxl import load_workbook
+
+try:
+    # Leer datos modificados
+    modified_data = json.loads('''${modifiedDataJson}''')
+    
+    # Cargar archivo Excel
+    filename = '${excelFile.name}'
+    wb = load_workbook(filename, keep_vba=True, data_only=True)
+    
+    # Actualizar todas las hojas y columnas modificadas
+    for sheet_name, columns in modified_data.items():
+        if sheet_name in wb.sheetnames:
+            ws = wb[sheet_name]
+            for col_letter, values in columns.items():
+                for i, value in enumerate(values):
+                    row_index = ${startRow} + i
+                    cell = ws[col_letter + str(row_index)]
+                    cell.value = str(value).replace('.', ',')
+    
+    # Guardar el archivo modificado
+    output_filename = 'modified_' + filename
+    wb.save(output_filename)
+    print("Excel modificado guardado correctamente")
+except Exception as e:
+    print(f"ERROR: {str(e)}")
+    print(traceback.format_exc())
+    raise e
+`;
+                await pyodide.runPythonAsync(script);
                 
                 // Obtener archivo modificado
                 const outputBytes = pyodide.FS.readFile('modified_' + excelFile.name, { encoding: 'binary' });
@@ -1291,29 +1227,69 @@ result_json = process_excel()
             return newData;
         }
 
+        // Aplicar deformación
+        function applyShapeDeformation() {
+            if (!selectedSheet || !selectedColumn) return;
+            
+            const columnData = originalData[selectedSheet][selectedColumn];
+            const originalRange = maxOriginal - minOriginal;
+            const newRange = maxTemp - minTemp;
+            
+            let deformedData = [];
+            
+            if (originalRange === 0) {
+                const avg = (minTemp + maxTemp) / 2;
+                deformedData = columnData.map(() => avg);
+            } else {
+                deformedData = columnData.map(value => {
+                    const normalized = (value - minOriginal) / originalRange;
+                    return minTemp + normalized * newRange;
+                });
+            }
+            
+            // Aplicar deformación avanzada
+            if (deformationLevel > 0 || horizontalDeformation > 0 || verticalDeformation > 0) {
+                const amplitude = (maxTemp - minTemp) * 0.3 * deformationLevel * verticalDeformation;
+                const frequency = 0.05 + deformationLevel * 0.1;
+                const horizontalFactor = 1 + horizontalDeformation * 0.5;
+                
+                deformedData = deformedData.map((value, i) => {
+                    const noiseFactor = noise(i) * 2 - 1;
+                    const wave1 = Math.sin(i * frequency * horizontalFactor) * amplitude;
+                    const wave2 = Math.cos(i * frequency * 0.7 * horizontalFactor) * amplitude * 0.6;
+                    const deformation = noiseFactor * amplitude * 0.5 + wave1 + wave2;
+                    
+                    let newValue = value + deformation;
+                    if (newValue < minTemp) newValue = minTemp;
+                    if (newValue > maxTemp) newValue = maxTemp;
+                    return newValue;
+                });
+            }
+            
+            // Aplicar efecto elástico
+            if (elasticEffect > 0) {
+                deformedData = applyElasticEffect(deformedData, elasticEffect);
+            }
+            
+            // Suavizar
+            if (smoothCurve) {
+                deformedData = smoothData(deformedData);
+            }
+            
+            // Actualizar datos modificados
+            modifiedData[selectedSheet][selectedColumn] = deformedData;
+            
+            // Actualizar gráfico
+            updateChart(columnData, deformedData);
+            
+            deformationStatus.textContent = "Deformación aplicada correctamente";
+            deformationStatus.className = "status-message success";
+        }
+
         // Inicializar la aplicación
         document.addEventListener('DOMContentLoaded', () => {
             // Inicializar Python
             initializePyodide();
-            
-            // Configurar eventos de pestañas
-            excelTab.addEventListener('click', function() {
-                excelTab.classList.add('active');
-                csvTab.classList.remove('active');
-                excelSection.style.display = 'block';
-                csvSection.style.display = 'none';
-                currentFileType = "excel";
-                excelStatus.textContent = "Modo Excel activado";
-            });
-            
-            csvTab.addEventListener('click', function() {
-                csvTab.classList.add('active');
-                excelTab.classList.remove('active');
-                csvSection.style.display = 'block';
-                excelSection.style.display = 'none';
-                currentFileType = "csv";
-                csvStatus.textContent = "Modo CSV activado";
-            });
             
             // Configurar eventos
             excelFileInput.addEventListener('change', function() {
@@ -1321,11 +1297,6 @@ result_json = process_excel()
                 if (pyodide) {
                     loadExcelData();
                 }
-            });
-            
-            csvFileInput.addEventListener('change', function() {
-                csvFile = this.files[0];
-                loadCSV();
             });
             
             loadExcelBtn.addEventListener('click', function() {
@@ -1337,114 +1308,70 @@ result_json = process_excel()
                 }
             });
             
-            loadCsvBtn.addEventListener('click', function() {
-                if (csvFile) {
-                    loadCSV();
-                } else {
-                    csvStatus.textContent = "Seleccione un archivo CSV primero";
-                    csvStatus.className = "status-message error";
-                }
-            });
+            sheetSelect.addEventListener('change', showColumnsForSheet);
             
             downloadExcelBtn.addEventListener('click', processExcel);
             
-            downloadCsvBtn.addEventListener('click', function() {
-                if (!temperatureChart || !temperatureChart.data.datasets[1].data.length) {
-                    downloadStatus.textContent = "Error: No hay datos para descargar";
-                    downloadStatus.className = "status-message error";
-                    return;
-                }
-                
-                try {
-                    const deformedData = temperatureChart.data.datasets[1].data;
-                    const csvContent = deformedData.map(value => 
-                        value.toFixed(1).replace('.', ',') // Convertir a coma decimal
-                    ).join('\n');
-                    
-                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.setAttribute('href', url);
-                    link.setAttribute('download', 'datos_extrapolados.csv');
-                    link.style.visibility = 'hidden';
-                    
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    
-                    downloadStatus.textContent = "Descarga iniciada: datos_extrapolados.csv";
-                    downloadStatus.className = "status-message success";
-                } catch (error) {
-                    downloadStatus.textContent = "Error al descargar: " + error.message;
-                    downloadStatus.className = "status-message error";
-                    console.error(error);
-                }
-            });
+            applyDeformationBtn.addEventListener('click', applyShapeDeformation);
             
             // Configurar inputs de rango
             minTempRange.addEventListener('input', () => {
                 minTempInput.value = minTempRange.value.replace('.', ',');
                 minTempValue.textContent = minTempRange.value.replace('.', ',') + "°C";
-                updateExtrapolation();
             });
             
             maxTempRange.addEventListener('input', () => {
                 maxTempInput.value = maxTempRange.value.replace('.', ',');
                 maxTempValue.textContent = maxTempRange.value.replace('.', ',') + "°C";
-                updateExtrapolation();
             });
             
             minTempInput.addEventListener('input', () => {
                 const value = parseFloat(minTempInput.value.replace(',', '.')) || 0;
                 minTempRange.value = value;
                 minTempValue.textContent = minTempInput.value + "°C";
-                updateExtrapolation();
             });
             
             maxTempInput.addEventListener('input', () => {
                 const value = parseFloat(maxTempInput.value.replace(',', '.')) || 0;
                 maxTempRange.value = value;
                 maxTempValue.textContent = maxTempInput.value + "°C";
-                updateExtrapolation();
             });
             
             // Controles de deformación
             shapeDeformationSlider.addEventListener('input', () => {
                 deformationLevel = shapeDeformationSlider.value / 100;
                 deformationPercent.textContent = shapeDeformationSlider.value + '%';
-                applyShapeDeformation();
             });
             
             horizontalDeformationSlider.addEventListener('input', () => {
                 horizontalDeformation = horizontalDeformationSlider.value / 100;
                 horizontalPercent.textContent = horizontalDeformationSlider.value + '%';
-                applyShapeDeformation();
             });
             
             verticalDeformationSlider.addEventListener('input', () => {
                 verticalDeformation = verticalDeformationSlider.value / 100;
                 verticalPercent.textContent = verticalDeformationSlider.value + '%';
-                applyShapeDeformation();
             });
             
             elasticEffectSlider.addEventListener('input', () => {
                 elasticEffect = elasticEffectSlider.value / 100;
                 elasticPercent.textContent = elasticEffectSlider.value + '%';
-                applyShapeDeformation();
             });
             
             // Controles de opciones
             smoothCurveCheckbox.addEventListener('change', () => {
                 smoothCurve = smoothCurveCheckbox.checked;
-                applyShapeDeformation();
             });
             
             autoAdjustCheckbox.addEventListener('change', () => {
                 autoAdjust = autoAdjustCheckbox.checked;
-                if (autoAdjust && originalData.length > 0) {
+                if (autoAdjust && selectedSheet && selectedColumn) {
                     minTempInput.value = minOriginal.toFixed(1).replace('.', ',');
                     maxTempInput.value = maxOriginal.toFixed(1).replace('.', ',');
-                    updateExtrapolation();
+                    minTempRange.value = minOriginal;
+                    maxTempRange.value = maxOriginal;
+                    minTempValue.textContent = minOriginal.toFixed(1).replace('.', ',') + "°C";
+                    maxTempValue.textContent = maxOriginal.toFixed(1).replace('.', ',') + "°C";
                 }
             });
             
@@ -1454,8 +1381,6 @@ result_json = process_excel()
             // Mensaje inicial
             excelStatus.textContent = "Seleccione un archivo Excel para comenzar";
             excelStatus.className = "status-message warning";
-            csvStatus.textContent = "Seleccione un archivo CSV para comenzar";
-            csvStatus.className = "status-message warning";
         });
 
         // Inicializar gráfico
@@ -1495,7 +1420,7 @@ result_json = process_excel()
                         y: {
                             title: {
                                 display: true,
-                                text: 'Temperatura (°C)',
+                                text: 'Valor',
                                 font: {
                                     size: 12,
                                     weight: 'bold'
@@ -1508,7 +1433,7 @@ result_json = process_excel()
                         x: {
                             title: {
                                 display: true,
-                                text: 'Mediciones',
+                                text: 'Índice',
                                 font: {
                                     size: 12,
                                     weight: 'bold'
@@ -1536,7 +1461,7 @@ result_json = process_excel()
                             intersect: false,
                             callbacks: {
                                 label: function(context) {
-                                    return `${context.dataset.label}: ${context.parsed.y.toFixed(1).replace('.', ',')}°C`;
+                                    return `${context.dataset.label}: ${context.parsed.y.toFixed(1).replace('.', ',')}`;
                                 }
                             }
                         }
@@ -1553,110 +1478,14 @@ result_json = process_excel()
             });
         }
 
-        // Actualizar información de datos
-        function updateDataInfo() {
-            if (originalData.length === 0) return;
-            
-            minOriginal = Math.min(...originalData);
-            maxOriginal = Math.max(...originalData);
-            
-            originalMinElem.textContent = minOriginal.toFixed(1).replace('.', ',') + "°C";
-            originalMaxElem.textContent = maxOriginal.toFixed(1).replace('.', ',') + "°C";
-            
-            minTemp = minOriginal;
-            maxTemp = maxOriginal;
-            
-            minTempInput.value = minTemp.toFixed(1).replace('.', ',');
-            maxTempInput.value = maxTemp.toFixed(1).replace('.', ',');
-            minTempRange.value = minTemp;
-            maxTempRange.value = maxTemp;
-            minTempValue.textContent = minTemp.toFixed(1).replace('.', ',') + "°C";
-            maxTempValue.textContent = maxTemp.toFixed(1).replace('.', ',') + "°C";
-            newMinElem.textContent = minTemp.toFixed(1).replace('.', ',') + "°C";
-            newMaxElem.textContent = maxTemp.toFixed(1).replace('.', ',') + "°C";
-        }
-
-        // Extrapolar datos
-        function updateExtrapolation() {
-            if (originalData.length === 0) return;
-            
-            minTemp = parseFloat(minTempInput.value.replace(',', '.'));
-            maxTemp = parseFloat(maxTempInput.value.replace(',', '.'));
-            
-            if (isNaN(minTemp) || isNaN(maxTemp) || minTemp >= maxTemp) {
-                return;
-            }
-            
-            minTempRange.value = minTemp;
-            maxTempRange.value = maxTemp;
-            minTempValue.textContent = minTemp.toFixed(1).replace('.', ',') + "°C";
-            maxTempValue.textContent = maxTemp.toFixed(1).replace('.', ',') + "°C";
-            newMinElem.textContent = minTemp.toFixed(1).replace('.', ',') + "°C";
-            newMaxElem.textContent = maxTemp.toFixed(1).replace('.', ',') + "°C";
-            
-            applyShapeDeformation();
-        }
-        
-        // Aplicar deformación
-        function applyShapeDeformation() {
-            if (originalData.length === 0) return;
-            
-            const originalRange = maxOriginal - minOriginal;
-            const newRange = maxTemp - minTemp;
-            
-            let deformedData = [];
-            
-            if (originalRange === 0) {
-                const avg = (minTemp + maxTemp) / 2;
-                deformedData = originalData.map(() => avg);
-            } else {
-                deformedData = originalData.map(value => {
-                    const normalized = (value - minOriginal) / originalRange;
-                    return minTemp + normalized * newRange;
-                });
-            }
-            
-            // Aplicar deformación avanzada
-            if (deformationLevel > 0 || horizontalDeformation > 0 || verticalDeformation > 0) {
-                const amplitude = (maxTemp - minTemp) * 0.3 * deformationLevel * verticalDeformation;
-                const frequency = 0.05 + deformationLevel * 0.1;
-                const horizontalFactor = 1 + horizontalDeformation * 0.5;
-                
-                deformedData = deformedData.map((value, i) => {
-                    const noiseFactor = noise(i) * 2 - 1;
-                    const wave1 = Math.sin(i * frequency * horizontalFactor) * amplitude;
-                    const wave2 = Math.cos(i * frequency * 0.7 * horizontalFactor) * amplitude * 0.6;
-                    const deformation = noiseFactor * amplitude * 0.5 + wave1 + wave2;
-                    
-                    let newValue = value + deformation;
-                    if (newValue < minTemp) newValue = minTemp;
-                    if (newValue > maxTemp) newValue = maxTemp;
-                    return newValue;
-                });
-            }
-            
-            // Aplicar efecto elástico
-            if (elasticEffect > 0) {
-                deformedData = applyElasticEffect(deformedData, elasticEffect);
-            }
-            
-            // Suavizar
-            if (smoothCurve) {
-                deformedData = smoothData(deformedData);
-            }
-            
-            // Actualizar gráfico
-            updateChart(deformedData);
-        }
-
         // Actualizar gráfico
-        function updateChart(deformedData = []) {
-            if (temperatureChart && originalData.length > 0) {
-                const labels = Array.from({length: originalData.length}, (_, i) => i % 50 === 0 ? `M${i+1}` : '');
+        function updateChart(original, deformed) {
+            if (temperatureChart) {
+                const labels = Array.from({length: original.length}, (_, i) => i % 50 === 0 ? `M${i+1}` : '');
                 
                 temperatureChart.data.labels = labels;
-                temperatureChart.data.datasets[0].data = originalData;
-                temperatureChart.data.datasets[1].data = deformedData;
+                temperatureChart.data.datasets[0].data = original;
+                temperatureChart.data.datasets[1].data = deformed;
                 
                 temperatureChart.update();
             }
