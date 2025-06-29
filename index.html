@@ -1112,34 +1112,41 @@ import traceback
 import json
 from openpyxl import load_workbook
 
-try:
-    # Leer datos modificados
-    modified_data = json.loads('''${modifiedDataJson}''')
-    
-    # Cargar archivo Excel
-    filename = '${excelFile.name}'
-    wb = load_workbook(filename, keep_vba=True, data_only=True)
-    
-    # Actualizar todas las hojas y columnas modificadas
-    for sheet_name, columns in modified_data.items():
-        if sheet_name in wb.sheetnames:
-            ws = wb[sheet_name]
-            for col_letter, values in columns.items():
-                for i, value in enumerate(values):
-                    row_index = ${startRow} + i
-                    cell = ws[col_letter + str(row_index)]
-                    cell.value = str(value).replace('.', ',')
-    
-    # Guardar el archivo modificado
-    output_filename = 'modified_' + filename
-    wb.save(output_filename)
-    print("Excel modificado guardado correctamente")
-except Exception as e:
-    print(f"ERROR: {str(e)}")
-    print(traceback.format_exc())
-    raise e
+def process_excel(modified_data):
+    try:
+        # 1. Leer archivo original
+        filename = '${excelFile.name}'
+        wb = load_workbook(filename, keep_vba=True, data_only=True)
+        
+        # 2. Aplicar datos modificados
+        for sheet_name, columns in modified_data.items():
+            if sheet_name in wb.sheetnames:
+                ws = wb[sheet_name]
+                for col_letter, values in columns.items():
+                    for i, value in enumerate(values):
+                        row_index = ${startRow} + i
+                        # Convertir a float antes de asignar
+                        ws[col_letter + str(row_index)].value = float(value)
+        
+        # 3. Guardar cambios
+        output_filename = 'modified_' + filename
+        wb.save(output_filename)
+        return "success"
+        
+    except Exception as e:
+        return f"ERROR: {str(e)}\\n{traceback.format_exc()}"
+
+# ===== EJECUCIÓN =====
+modified_data = json.loads('''${modifiedDataJson}''')
+result = process_excel(modified_data)
 `;
+                // Ejecutar script
                 await pyodide.runPythonAsync(script);
+                const result = pyodide.globals.get('result');
+                
+                if (result.startsWith("ERROR:")) {
+                    throw new Error(result);
+                }
                 
                 // Obtener archivo modificado
                 const outputBytes = pyodide.FS.readFile('modified_' + excelFile.name, { encoding: 'binary' });
@@ -1213,7 +1220,7 @@ except Exception as e:
             
             flatZones.forEach(index => {
                 const wave1 = Math.sin(index * 0.5) * amplitude * noise(index);
-                const wave2 = Math.cos(index * 0.8) * amplitude * 0.7 * noise(index*1.3);
+                const wave2 = Math.cos(index * 0.8) * amplitude * 0.6 * noise(index*1.3);
                 const wave3 = Math.sin(index * 1.2) * amplitude * 0.5 * noise(index*1.7);
                 
                 const combinedWave = (wave1 + wave2 + wave3) / 2.2;
