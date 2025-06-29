@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extrapolador Avanzado</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, button { width: 100%; padding: 8px; margin-bottom: 10px; }
+        button { background: #3498db; color: white; border: none; cursor: pointer; }
+        .status-message { padding: 10px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .chart-container { height: 400px; margin-top: 20px; }
+        .debug-info { font-family: monospace; white-space: pre-wrap; background: #f0f0f0; padding: 10px; margin-top: 10px; }
+        .row-range { display: flex; gap: 10px; }
+        .row-range > div { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Extrapolador Avanzado</h1>
+        
+        <div class="tab-container">
+            <button id="excelTab" class="tab active">Excel</button>
+            <button id="csvTab" class="tab">CSV</button>
+        </div>
+        
+        <!-- Sección Excel -->
+        <div id="excelSection" class="section">
+            <div class="input-group">
+                <label for="excelFile">Archivo Excel (.xlsx, .xlsm):</label>
+                <input type="file" id="excelFile" accept=".xlsx,.xlsm">
+            </div>
+            
+            <div class="row-range">
+                <div class="input-group">
+                    <label for="startRow">Fila Inicial:</label>
+                    <input type="number" id="startRow" min="1" value="1">
+                </div>
+                <div class="input-group">
+                    <label for="endRow">Fila Final:</label>
+                    <input type="number" id="endRow" min="1">
+                </div>
+            </div>
+            
+            <div class="sheet-selection">
+                <div class="input-group">
+                    <label for="sheetSelect">Hoja:</label>
+                    <select id="sheetSelect">
+                        <option value="">-- Seleccionar hoja --</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="columnSelect">Columna:</label>
+                    <select id="columnSelect">
+                        <option value="">-- Seleccionar columna --</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button id="loadExcelBtn">Cargar Datos de Excel</button>
+            <div id="excelStatus" class="status-message">Esperando archivo Excel</div>
+        </div>
+        
+        <!-- Sección CSV -->
+        <div id="csvSection" class="section" style="display:none;">
+            <div class="input-group">
+                <label for="csvFile">Archivo CSV:</label>
+                <input type="file" id="csvFile" accept=".csv">
+            </div>
+            <button id="loadCsvBtn">Cargar Datos CSV</button>
+            <div id="csvStatus" class="status-message">Esperando archivo CSV</div>
+        </div>
+        
+        <!-- Ajustes de temperatura -->
+        <div class="input-group">
+            <label for="minTemp">Temperatura Mínima:</label>
+            <input type="text" id="minTemp" placeholder="Ej: 15,5">
+        </div>
+        
+        <div class="input-group">
+            <label for="maxTemp">Temperatura Máxima:</label>
+            <input type="text" id="maxTemp" placeholder="Ej: 32,0">
+        </div>
+        
+        <!-- Botones de exportación -->
+        <button id="downloadCsvBtn">Descargar CSV</button>
+        <button id="downloadExcelBtn">Descargar Excel Modificado</button>
+        <div id="downloadStatus" class="status-message"></div>
+        
+        <!-- Gráfico -->
+        <div class="chart-container">
+            <canvas id="temperatureChart"></canvas>
+        </div>
+        
+        <!-- Información de depuración -->
+        <div class="debug-info" id="debugContent"></div>
+    </div>
+
+    <script>
+        // Variables globales
+        let originalData = [];
+        let minOriginal = 0;
+        let maxOriginal = 0;
+        let minTemp = 0;
+        let maxTemp = 0;
+        let temperatureChart = null;
+        let pyodide = null;
+        let excelFile = null;
+        let csvFile = null;
+        let selectedSheet = "";
+        let selectedColumn = "";
+        let startRow = 1;
+        let endRow = 0;
+
+        // Elementos del DOM
+        const excelFileInput = document.getElementById('excelFile');
+        const csvFileInput = document.getElementById('csvFile');
+        const sheetSelect = document.getElementById('sheetSelect');
+        const columnSelect = document.getElementById('columnSelect');
+        const loadExcelBtn = document.getElementById('loadExcelBtn');
+        const loadCsvBtn = document.getElementById('loadCsvBtn');
+        const minTempInput = document.getElementById('minTemp');
+        const maxTempInput = document.getElementById('maxTemp');
+        const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+        const downloadExcelBtn = document.getElementById('downloadExcelBtn');
+        const excelStatus = document.getElementById('excelStatus');
+        const csvStatus = document.getElementById('csvStatus');
+        const downloadStatus = document.getElementById('downloadStatus');
+        const debugInfo = document.getElementById('debugContent');
+        const excelTab = document.getElementById('excelTab');
+        const csvTab = document.getElementById('csvTab');
+        const excelSection = document.getElementById('excelSection');
+        const csvSection = document.getElementById('csvSection');
+        const startRowInput = document.getElementById('startRow');
+        const endRowInput = document.getElementById('endRow');
+
+        // Inicializar Python con Pyodide
+        async function initializePyodide() {
+            try {
+                pyodide = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/"
+                });
+                
+                await pyodide.loadPackage(['micropip']);
+                await pyodide.runPythonAsync(`
+                    import micropip
+                    await micropip.install('openpyxl')
+                `);
+                
+                excelStatus.textContent = "Python listo para procesar Excel";
+                excelStatus.className = "status-message success";
+            } catch (error) {
+                excelStatus.textContent = "Error al cargar Python: " + error.message;
+                excelStatus.className = "status-message error";
+            }
+        }
+
+        // Cargar datos de Excel usando Python
+        async function loadExcelData() {
+            if (!pyodide || !excelFile) return;
+            
+            try {
+                excelStatus.textContent = "Procesando Excel...";
+                excelStatus.className = "status-message warning";
+                
+                startRow = parseInt(startRowInput.value) || 1;
+                endRow = parseInt(endRowInput.value) || 0;
+                
+                const arrayBuffer = await excelFile.arrayBuffer();
+                const bytes = new Uint8Array(arrayBuffer);
+                pyodide.FS.writeFile(excelFile.name, bytes);
+                
+                const script = `
+                    import traceback
+                    from openpyxl import load_workbook
+                    from openpyxl.utils import get_column_letter
+                    from js import console, startRow, endRow
+                    import re
+                    
+                    filename = '${excelFile.name}'
+                    sheets = []
+                    excel_data = {}
+                    debug_info = ""
+                    
+                    try:
+                        wb = load_workbook(filename, data_only=True)
+                        sheets = wb.sheetnames
+                        debug_info = f"Se encontraron {len(sheets)} hojas\\n"
+                        
+                        for sheet_name in sheets:
+                            ws = wb[sheet_name]
+                            sheet_data = {}
+                            min_row = startRow
+                            max_row = ws.max_row if endRow == 0 else min(endRow, ws.max_row)
+                            debug_info += f"\\nHoja: {sheet_name} (Filas: {min_row}-{max_row})\\n"
+                            
+                            for col_idx in range(1, ws.max_column + 1):
+                                col_letter = get_column_letter(col_idx)
+                                col_values = []
+                                
+                                for row_idx in range(min_row, max_row + 1):
+                                    cell = ws.cell(row=row_idx, column=col_idx)
+                                    if cell.value is None: continue
+                                    
+                                    # Convertir a string y limpiar
+                                    str_val = str(cell.value).strip().replace('°C', '').replace(' ', '')
+                                    str_val = re.sub(r'[^\\d.,-]', '', str_val)
+                                    str_val = str_val.replace(',', '.')
+                                    
+                                    try:
+                                        num_val = float(str_val)
+                                        col_values.append(num_val)
+                                    except:
+                                        debug_info += f"  Celda {col_letter}{row_idx} inválida: '{cell.value}'\\n"
+                                
+                                if col_values:
+                                    sheet_data[col_letter] = col_values
+                                    debug_info += f"  Col {col_letter}: {len(col_values)} valores\\n"
+                            
+                            if sheet_data:
+                                excel_data[sheet_name] = sheet_data
+                        
+                        debug_info += "\\nProcesamiento completado"
+                    except Exception as e:
+                        debug_info += "\\nERROR: " + str(e) + "\\n" + traceback.format_exc()
+                    
+                    {
+                        'sheets': sheets,
+                        'excel_data': excel_data,
+                        'debug_info': debug_info
+                    }
+                `;
+                
+                const result = pyodide.runPython(script, {
+                    startRow: startRow,
+                    endRow: endRow
+                });
+                
+                debugInfo.textContent = result.debug_info;
+                
+                if (!result.excel_data) {
+                    throw new Error("No se encontraron datos válidos");
+                }
+                
+                // Actualizar selector de hojas
+                sheetSelect.innerHTML = '<option value="">-- Seleccionar hoja --</option>';
+                result.sheets.forEach(sheet => {
+                    const option = document.createElement('option');
+                    option.value = sheet;
+                    option.textContent = sheet;
+                    sheetSelect.appendChild(option);
+                });
+                
+                // Manejar selección de hoja
+                sheetSelect.onchange = () => {
+                    selectedSheet = sheetSelect.value;
+                    if (!selectedSheet) return;
+                    
+                    columnSelect.innerHTML = '<option value="">-- Seleccionar columna --</option>';
+                    const sheetData = result.excel_data[selectedSheet].toJs();
+                    
+                    Object.keys(sheetData).forEach(col => {
+                        const option = document.createElement('option');
+                        option.value = col;
+                        option.textContent = col;
+                        columnSelect.appendChild(option);
+                    });
+                };
+                
+                // Manejar selección de columna
+                columnSelect.onchange = () => {
+                    selectedColumn = columnSelect.value;
+                    if (!selectedSheet || !selectedColumn) return;
+                    
+                    const sheetData = result.excel_data[selectedSheet].toJs();
+                    originalData = sheetData[selectedColumn];
+                    
+                    if (originalData && originalData.length) {
+                        minOriginal = Math.min(...originalData);
+                        maxOriginal = Math.max(...originalData);
+                        minTemp = minOriginal;
+                        maxTemp = maxOriginal;
+                        
+                        minTempInput.value = minTemp.toFixed(1);
+                        maxTempInput.value = maxTemp.toFixed(1);
+                        
+                        updateChart();
+                        excelStatus.textContent = `Datos cargados: ${originalData.length} valores`;
+                        excelStatus.className = "status-message success";
+                    }
+                };
+                
+                // Seleccionar primera hoja
+                if (result.sheets.length > 0) {
+                    sheetSelect.value = result.sheets[0];
+                    sheetSelect.dispatchEvent(new Event('change'));
+                }
+                
+            } catch (error) {
+                excelStatus.textContent = "Error: " + error.message;
+                excelStatus.className = "status-message error";
+            }
+        }
+
+        // Cargar archivo CSV
+        function loadCSV() {
+            const file = csvFileInput.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const content = e.target.result;
+                    originalData = [];
+                    
+                    content.split('\n').forEach(line => {
+                        line = line.trim().replace(',', '.');
+                        const value = parseFloat(line);
+                        if (!isNaN(value)) originalData.push(value);
+                    });
+                    
+                    if (originalData.length === 0) {
+                        throw new Error("No se encontraron datos válidos");
+                    }
+                    
+                    minOriginal = Math.min(...originalData);
+                    maxOriginal = Math.max(...originalData);
+                    minTemp = minOriginal;
+                    maxTemp = maxOriginal;
+                    
+                    minTempInput.value = minTemp.toFixed(1);
+                    maxTempInput.value = maxTemp.toFixed(1);
+                    
+                    updateChart();
+                    csvStatus.textContent = `Datos cargados: ${originalData.length} valores`;
+                    csvStatus.className = "status-message success";
+                } catch (error) {
+                    csvStatus.textContent = "Error: " + error.message;
+                    csvStatus.className = "status-message error";
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Procesar Excel con datos extrapolados
+        async function processExcel() {
+            if (!pyodide || !excelFile || !selectedSheet || !selectedColumn) {
+                downloadStatus.textContent = "Seleccione archivo, hoja y columna";
+                downloadStatus.className = "status-message error";
+                return;
+            }
+            
+            try {
+                downloadStatus.textContent = "Procesando Excel...";
+                downloadStatus.className = "status-message warning";
+                
+                const deformedData = temperatureChart.data.datasets[1].data;
+                const arrayBuffer = await excelFile.arrayBuffer();
+                const bytes = new Uint8Array(arrayBuffer);
+                pyodide.FS.writeFile(excelFile.name, bytes);
+                
+                await pyodide.runPythonAsync(`
+                    from openpyxl import load_workbook
+                    from js import deformedData, excelFile, selectedSheet, selectedColumn
+                    import json
+                    
+                    filename = excelFile.name
+                    wb = load_workbook(filename)
+                    ws = wb[selectedSheet]
+                    
+                    values = json.loads(deformedData)
+                    for i, value in enumerate(values, start=${startRow}):
+                        cell = ws[selectedColumn + str(i)]
+                        cell.value = str(value).replace('.', ',')
+                    
+                    output_name = 'modified_' + filename
+                    wb.save(output_name)
+                `, {
+                    deformedData: JSON.stringify(deformedData),
+                    excelFile: { name: excelFile.name },
+                    selectedSheet: selectedSheet,
+                    selectedColumn: selectedColumn
+                });
+                
+                const outputBytes = pyodide.FS.readFile('modified_' + excelFile.name);
+                const blob = new Blob([outputBytes], { type: 'application/vnd.ms-excel' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'modified_' + excelFile.name;
+                link.click();
+                
+                downloadStatus.textContent = "Excel modificado descargado";
+                downloadStatus.className = "status-message success";
+            } catch (error) {
+                downloadStatus.textContent = "Error: " + error.message;
+                downloadStatus.className = "status-message error";
+            }
+        }
+
+        // Inicializar gráfico
+        function initChart() {
+            const ctx = document.getElementById('temperatureChart').getContext('2d');
+            temperatureChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Original',
+                            data: [],
+                            borderColor: '#3498db',
+                            borderWidth: 2,
+                            fill: false
+                        },
+                        {
+                            label: 'Extrapolado',
+                            data: [],
+                            borderColor: '#e74c3c',
+                            borderWidth: 2,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Actualizar gráfico
+        function updateChart() {
+            if (!originalData.length) return;
+            
+            const labels = originalData.map((_, i) => i + 1);
+            const extrapolated = extrapolateData();
+            
+            temperatureChart.data.labels = labels;
+            temperatureChart.data.datasets[0].data = originalData;
+            temperatureChart.data.datasets[1].data = extrapolated;
+            temperatureChart.update();
+        }
+
+        // Extrapolar datos
+        function extrapolateData() {
+            minTemp = parseFloat(minTempInput.value) || minOriginal;
+            maxTemp = parseFloat(maxTempInput.value) || maxOriginal;
+            
+            const originalRange = maxOriginal - minOriginal;
+            const newRange = maxTemp - minTemp;
+            
+            return originalData.map(value => {
+                const normalized = (value - minOriginal) / originalRange;
+                return minTemp + normalized * newRange;
+            });
+        }
+
+        // Inicializar aplicación
+        document.addEventListener('DOMContentLoaded', () => {
+            initializePyodide();
+            initChart();
+            
+            // Manejar pestañas
+            excelTab.addEventListener('click', () => {
+                excelSection.style.display = 'block';
+                csvSection.style.display = 'none';
+            });
+            
+            csvTab.addEventListener('click', () => {
+                csvSection.style.display = 'block';
+                excelSection.style.display = 'none';
+            });
+            
+            // Eventos de botones
+            loadExcelBtn.addEventListener('click', () => {
+                excelFile = excelFileInput.files[0];
+                if (excelFile) loadExcelData();
+            });
+            
+            loadCsvBtn.addEventListener('click', loadCSV);
+            downloadExcelBtn.addEventListener('click', processExcel);
+            
+            downloadCsvBtn.addEventListener('click', () => {
+                if (!originalData.length) return;
+                
+                const csvContent = extrapolateData()
+                    .map(v => v.toFixed(1).replace('.', ','))
+                    .join('\n');
+                
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'datos_extrapolados.csv';
+                link.click();
+            });
+            
+            // Actualizar gráfico al cambiar valores
+            minTempInput.addEventListener('input', updateChart);
+            maxTempInput.addEventListener('input', updateChart);
+        });
+    </script>
+</body>
+</html>
