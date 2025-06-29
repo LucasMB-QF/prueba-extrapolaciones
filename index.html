@@ -22,13 +22,7 @@
             --excel: #217346;
             --csv: #f39c12;
         }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
@@ -38,7 +32,6 @@
             padding: 20px;
             overflow-x: hidden;
         }
-        
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -49,7 +42,6 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
         header {
             background: linear-gradient(to right, #2c3e50, #4a6491);
             color: white;
@@ -59,13 +51,11 @@
             position: relative;
             overflow: hidden;
         }
-        
         h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
         .subtitle {
             font-size: 1.1rem;
             opacity: 0.9;
@@ -73,14 +63,12 @@
             margin: 0 auto;
             font-weight: 300;
         }
-        
         .main-content {
             display: flex;
             flex-wrap: wrap;
             padding: 30px;
             gap: 20px;
         }
-        
         .controls {
             flex: 1;
             min-width: 350px;
@@ -89,7 +77,6 @@
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
-        
         .chart-container {
             flex: 2;
             min-width: 600px;
@@ -102,13 +89,11 @@
             margin-bottom: 20px;
             border: 1px solid #e0e0e0;
         }
-        
         .control-group {
             margin-bottom: 25px;
             padding-bottom: 20px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
-        
         .control-group h2 {
             margin-bottom: 20px;
             color: var(--primary);
@@ -116,16 +101,13 @@
             display: flex;
             align-items: center;
         }
-        
         .control-group h2 i {
             margin-right: 10px;
             font-size: 1.2em;
         }
-        
         .input-group {
             margin-bottom: 20px;
         }
-        
         label {
             display: block;
             margin-bottom: 8px;
@@ -134,13 +116,11 @@
             display: flex;
             align-items: center;
         }
-        
         label i {
             margin-right: 8px;
             font-size: 1.1em;
         }
-        
-        input[type="text"], input[type="file"], select, input[type="number"] {
+        input[type="text"], input[type="file"], select {
             width: 100%;
             padding: 12px;
             border: 2px solid #ddd;
@@ -149,29 +129,16 @@
             transition: border-color 0.3s;
             background: white;
         }
-        
-        input[type="text"]:focus, input[type="file"]:focus, select:focus, input[type="number"]:focus {
+        input[type="text"]:focus, input[type="file"]:focus, select:focus {
             border-color: var(--secondary);
             outline: none;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
-        
-        .row-range { 
-            display: flex; 
-            gap: 10px; 
-            margin-bottom: 15px;
-        }
-        .row-range > .input-group { 
-            flex: 1; 
-            margin-bottom: 0;
-        }
-
         .range-container {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        
         .range-container input[type="range"] {
             flex: 1;
             height: 8px;
@@ -180,7 +147,6 @@
             border-radius: 10px;
             outline: none;
         }
-        
         .range-container input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 22px;
@@ -190,14 +156,8 @@
             transition: all 0.2s;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        
-        #minTempRange::-webkit-slider-thumb { 
-            background: var(--secondary);
-        }
-        #maxTempRange::-webkit-slider-thumb { 
-            background: var(--accent);
-        }
-        
+        #minTempRange::-webkit-slider-thumb { background: var(--secondary); }
+        #maxTempRange::-webkit-slider-thumb { background: var(--accent); }
         button {
             display: block;
             width: 100%;
@@ -215,36 +175,20 @@
             justify-content: center;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
         button i {
             margin-right: 8px;
         }
-        
         button:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 10px rgba(0,0,0,0.15);
         }
-        
         button:active {
             transform: translateY(1px);
         }
-        
-        #loadExcelBtn {
-            background: linear-gradient(to right, #3498db, #2980b9);
-        }
-        
-        #downloadCsvBtn {
-            background: linear-gradient(to right, #f39c12, #e67e22);
-        }
-        
-        #downloadExcelBtn {
-            background: linear-gradient(to right, #217346, #27ae60);
-        }
-        
-        #processExcelBtn { /* This button doesn't exist in the combined version, but keeping for reference if you add later */
-            background: linear-gradient(to right, #9b59b6, #8e44ad);
-        }
-        
+        #loadBtn { background: linear-gradient(to right, #3498db, #2980b9); }
+        #downloadCsvBtn { background: linear-gradient(to right, #f39c12, #e67e22); }
+        #downloadExcelBtn { background: linear-gradient(to right, #217346, #27ae60); }
+        #processExcelBtn { background: linear-gradient(to right, #9b59b6, #8e44ad); }
         .data-info {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -252,7 +196,6 @@
             margin-top: 20px;
             text-align: center;
         }
-        
         .info-card {
             background: white;
             border-radius: 10px;
@@ -261,28 +204,23 @@
             transition: all 0.3s;
             border: 1px solid rgba(0,0,0,0.05);
         }
-        
         .info-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
         }
-        
         .info-card h3 {
             font-size: 1.1rem;
             margin-bottom: 8px;
             color: var(--primary);
         }
-        
         .info-card p {
             font-size: 1.4rem;
             font-weight: 700;
         }
-        
         .original-min { color: #3498db; }
         .original-max { color: #e74c3c; }
         .new-min { color: #2ecc71; }
         .new-max { color: #f39c12; }
-        
         footer {
             text-align: center;
             padding: 20px;
@@ -291,7 +229,6 @@
             border-top: 1px solid rgba(0, 0, 0, 0.1);
             background: rgba(236, 240, 241, 0.7);
         }
-        
         .status-message {
             padding: 10px;
             margin-top: 10px;
@@ -299,11 +236,9 @@
             text-align: center;
             font-weight: 500;
         }
-        
         .success { background: #d4edda; color: #155724; }
         .error { background: #f8d7da; color: #721c24; }
         .warning { background: #fff3cd; color: #856404; }
-        
         .progress-container {
             height: 8px;
             background: #e0e0e0;
@@ -312,14 +247,12 @@
             overflow: hidden;
             display: none;
         }
-        
         .progress-bar {
             height: 100%;
             background: var(--secondary);
             width: 0%;
             transition: width 0.3s;
         }
-        
         .instructions {
             background: linear-gradient(to right, #e3f2fd, #bbdefb);
             padding: 15px;
@@ -328,23 +261,19 @@
             font-size: 0.9rem;
             border-left: 4px solid var(--secondary);
         }
-        
         .instructions h3 {
             margin-top: 0;
             color: var(--primary);
         }
-        
         .instructions ul {
             padding-left: 20px;
             margin: 10px 0;
         }
-        
         .instructions li {
             margin-bottom: 5px;
             position: relative;
             padding-left: 25px;
         }
-        
         .instructions li:before {
             content: "•";
             color: var(--secondary);
@@ -354,7 +283,6 @@
             top: 0;
             font-size: 1.2em;
         }
-        
         .deformation-controls {
             background: #f8f9fa;
             padding: 20px;
@@ -363,7 +291,6 @@
             margin-top: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.03);
         }
-        
         .deformation-controls h3 {
             margin-top: 0;
             margin-bottom: 20px;
@@ -373,13 +300,11 @@
             border-bottom: 2px solid var(--primary);
             padding-bottom: 10px;
         }
-        
         .deformation-controls h3 i {
             margin-right: 10px;
             color: var(--variation);
             font-size: 1.4em;
         }
-        
         .deformation-intensity {
             display: flex;
             align-items: center;
@@ -389,7 +314,6 @@
             background: rgba(255,255,255,0.7);
             border-radius: 8px;
         }
-        
         .deformation-intensity input[type="range"] {
             flex: 1;
             height: 12px;
@@ -399,7 +323,6 @@
             outline: none;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
-        
         .deformation-intensity input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 28px;
@@ -409,23 +332,10 @@
             box-shadow: 0 3px 6px rgba(0,0,0,0.2);
             border: 2px solid white;
         }
-        
-        #shapeDeformation::-webkit-slider-thumb {
-            background: var(--variation);
-        }
-        
-        #horizontalDeformation::-webkit-slider-thumb {
-            background: var(--horizontal);
-        }
-        
-        #verticalDeformation::-webkit-slider-thumb {
-            background: var(--vertical);
-        }
-        
-        #elasticEffect::-webkit-slider-thumb {
-            background: var(--elastic);
-        }
-        
+        #shapeDeformation::-webkit-slider-thumb { background: var(--variation); }
+        #horizontalDeformation::-webkit-slider-thumb { background: var(--horizontal); }
+        #verticalDeformation::-webkit-slider-thumb { background: var(--vertical); }
+        #elasticEffect::-webkit-slider-thumb { background: var(--elastic); }
         .deformation-intensity span {
             min-width: 40px;
             text-align: center;
@@ -435,27 +345,22 @@
             border-radius: 4px;
             background: rgba(0,0,0,0.03);
         }
-        
         #deformationPercent {
             color: var(--variation);
             background: rgba(155, 89, 182, 0.1);
         }
-        
         #horizontalPercent {
             color: var(--horizontal);
             background: rgba(26, 188, 156, 0.1);
         }
-        
         #verticalPercent {
             color: var(--vertical);
             background: rgba(241, 196, 15, 0.1);
         }
-        
         #elasticPercent {
             color: var(--elastic);
             background: rgba(230, 126, 34, 0.1);
         }
-        
         .deformation-description {
             margin-top: 5px;
             font-size: 0.85rem;
@@ -463,7 +368,6 @@
             padding: 0 10px;
             font-style: italic;
         }
-        
         .toggle-group {
             display: flex;
             justify-content: space-between;
@@ -471,7 +375,6 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-        
         .toggle-label {
             display: flex;
             align-items: center;
@@ -482,23 +385,19 @@
             border-radius: 20px;
             transition: all 0.2s;
         }
-        
         .toggle-label:hover {
             background: rgba(0,0,0,0.06);
         }
-        
         .toggle-label input {
             margin-right: 8px;
             cursor: pointer;
         }
-        
         .elastic-preview {
             display: flex;
             justify-content: center;
             margin-top: 10px;
             gap: 10px;
         }
-        
         .elastic-demo {
             width: 20px;
             height: 10px;
@@ -509,13 +408,11 @@
             animation: elastic-pulse 1.5s infinite;
             animation-delay: calc(var(--i) * 0.2s);
         }
-        
         @keyframes elastic-pulse {
             0% { transform: scaleX(1); }
             50% { transform: scaleX(0.4); }
             100% { transform: scaleX(1); }
         }
-        
         .elastic-demo:before {
             content: "";
             position: absolute;
@@ -531,36 +428,25 @@
                 rgba(255,255,255,0.5) 6px
             );
         }
-        
         @media (max-width: 1000px) {
-            .main-content {
-                flex-direction: column;
-            }
-            
-            .chart-container {
-                min-width: 100%;
-                height: 500px;
-            }
+            .main-content { flex-direction: column; }
+            .chart-container { min-width: 100%; height: 500px; }
         }
-        
         .elastic-title {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-top: 5px;
         }
-        
         .elastic-title i {
             color: var(--elastic);
             animation: pulse 1.5s infinite;
         }
-        
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
-        
         .elastic-effect-container {
             margin-top: 20px;
             padding: 20px;
@@ -568,7 +454,6 @@
             border-radius: 8px;
             border-left: 4px solid var(--elastic);
         }
-        
         .pyodide-loading {
             background: #f1c40f;
             color: #2c3e50;
@@ -579,14 +464,12 @@
             font-weight: bold;
             display: none;
         }
-        
         .sheet-selection {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-top: 15px;
         }
-        
         .file-type-indicator {
             display: inline-block;
             padding: 4px 10px;
@@ -595,23 +478,13 @@
             font-weight: 600;
             margin-left: 10px;
         }
-        
-        .excel-indicator {
-            background: var(--excel);
-            color: white;
-        }
-        
-        .csv-indicator {
-            background: var(--csv);
-            color: white;
-        }
-        
+        .excel-indicator { background: var(--excel); color: white; }
+        .csv-indicator { background: var(--csv); color: white; }
         .tab-container {
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
         }
-        
         .tab {
             padding: 10px 20px;
             border-radius: 8px;
@@ -620,24 +493,20 @@
             font-weight: 600;
             transition: all 0.3s;
         }
-        
         .tab.active {
             background: var(--secondary);
             color: white;
         }
-        
         .elastic-control-header {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-bottom: 15px;
         }
-        
         .elastic-control-header i {
             font-size: 1.5rem;
             color: var(--elastic);
         }
-        
         .debug-info {
             background: #f8f9fa;
             padding: 15px;
@@ -648,9 +517,7 @@
             max-height: 200px;
             overflow-y: auto;
             border: 1px solid #e9ecef;
-            display: none; /* Hidden by default */
         }
-        
         .decimal-hint {
             font-size: 0.8rem;
             color: #6c757d;
@@ -665,7 +532,6 @@
             <h1><i class="fas fa-file-waveform"></i> Extrapolador Avanzado</h1>
             <p class="subtitle">Procesa archivos Excel y CSV con deformaciones avanzadas de curvas</p>
         </header>
-        
         <div class="main-content">
             <div class="controls">
                 <div class="instructions">
@@ -680,30 +546,16 @@
                         <li>Usa <strong>comas</strong> como separador decimal (ej: 23,5)</li>
                     </ul>
                 </div>
-                
                 <div class="tab-container">
                     <div class="tab active" id="excelTab">Excel (.xlsm)</div>
                     <div class="tab" id="csvTab">CSV</div>
                 </div>
-                
                 <div class="control-group" id="excelSection">
                     <h2><i class="fas fa-file-excel"></i> Carga de Excel</h2>
                     <div class="input-group">
-                        <label for="excelFile"><i class="fas fa-file-export"></i> Seleccionar archivo Excel (.xlsx, .xlsm):</label>
-                        <input type="file" id="excelFile" accept=".xlsx,.xlsm">
+                        <label for="excelFile"><i class="fas fa-file-export"></i> Seleccionar archivo Excel (.xlsm):</label>
+                        <input type="file" id="excelFile" accept=".xlsm">
                     </div>
-                    
-                    <div class="row-range">
-                        <div class="input-group">
-                            <label for="startRow"><i class="fas fa-arrow-up"></i> Fila Inicial:</label>
-                            <input type="number" id="startRow" min="1" value="1">
-                        </div>
-                        <div class="input-group">
-                            <label for="endRow"><i class="fas fa-arrow-down"></i> Fila Final:</label>
-                            <input type="number" id="endRow" min="1">
-                        </div>
-                    </div>
-
                     <div class="sheet-selection">
                         <div class="input-group">
                             <label for="sheetSelect"><i class="fas fa-layer-group"></i> Hoja:</label>
@@ -711,7 +563,6 @@
                                 <option value="">-- Seleccionar hoja --</option>
                             </select>
                         </div>
-                        
                         <div class="input-group">
                             <label for="columnSelect"><i class="fas fa-columns"></i> Columna:</label>
                             <select id="columnSelect">
@@ -734,17 +585,14 @@
                             </select>
                         </div>
                     </div>
-                    
                     <div class="decimal-hint">
                         <i class="fas fa-info-circle"></i> Los archivos Excel deben tener valores numéricos en las celdas (usando comas como decimales)
                     </div>
-                    
                     <div class="progress-container" id="excelProgressContainer">
                         <div class="progress-bar" id="excelProgressBar"></div>
                     </div>
                     <button id="loadExcelBtn"><i class="fas fa-file-import"></i> Cargar Datos de Excel</button>
                 </div>
-                
                 <div class="control-group" id="csvSection" style="display: none;">
                     <h2><i class="fas fa-file-csv"></i> Carga de CSV</h2>
                     <div class="input-group">
@@ -754,16 +602,12 @@
                             <i class="fas fa-info-circle"></i> El archivo CSV debe contener un valor numérico por línea (usando comas como decimales)
                         </div>
                     </div>
-                    
                     <div class="progress-container" id="csvProgressContainer">
                         <div class="progress-bar" id="csvProgressBar"></div>
                     </div>
                     <button id="loadCsvBtn"><i class="fas fa-file-import"></i> Cargar Datos CSV</button>
                 </div>
-                
                 <div id="loadStatus" class="status-message">Seleccione un archivo para comenzar</div>
-                <div class="debug-info" id="debugContent"></div>
-                
                 <div class="control-group">
                     <h2><i class="fas fa-sliders-h"></i> Ajuste de Temperatura</h2>
                     <div class="input-group">
@@ -775,7 +619,6 @@
                             <span id="minTempValue">--</span>
                         </div>
                     </div>
-                    
                     <div class="input-group">
                         <label for="maxTemp"><i class="fas fa-temperature-high"></i> Temperatura Máxima:</label>
                         <input type="text" id="maxTemp" placeholder="Ej: 32,0">
@@ -786,66 +629,12 @@
                         </div>
                     </div>
                 </div>
-                
-                <div class="control-group">
-                    <h2><i class="fas fa-chart-line"></i> Opciones de Deformación</h2>
-                    <div class="deformation-controls">
-                        <h3><i class="fas fa-bezier-curve"></i> Deformación de Forma</h3>
-                        <div class="deformation-intensity">
-                            <label for="shapeDeformation">Intensidad:</label>
-                            <input type="range" id="shapeDeformation" min="0" max="100" value="0">
-                            <span id="deformationPercent">0%</span>
-                        </div>
-                        <p class="deformation-description">Ajusta la curvatura general de los datos.</p>
-                    </div>
-
-                    <div class="deformation-controls">
-                        <h3><i class="fas fa-arrows-left-right"></i> Deformación Horizontal</h3>
-                        <div class="deformation-intensity">
-                            <label for="horizontalDeformation">Intensidad:</label>
-                            <input type="range" id="horizontalDeformation" min="0" max="100" value="0">
-                            <span id="horizontalPercent">0%</span>
-                        </div>
-                        <p class="deformation-description">Estira o comprime la curva horizontalmente.</p>
-                    </div>
-
-                    <div class="deformation-controls">
-                        <h3><i class="fas fa-arrows-up-down"></i> Deformación Vertical</h3>
-                        <div class="deformation-intensity">
-                            <label for="verticalDeformation">Intensidad:</label>
-                            <input type="range" id="verticalDeformation" min="0" max="100" value="0">
-                            <span id="verticalPercent">0%</span>
-                        </div>
-                        <p class="deformation-description">Estira o comprime la curva verticalmente.</p>
-                    </div>
-
-                    <div class="elastic-effect-container">
-                        <div class="elastic-control-header">
-                            <i class="fas fa-bounce"></i>
-                            <h3>Efecto Elástico</h3>
-                        </div>
-                        <div class="deformation-intensity">
-                            <label for="elasticEffect">Intensidad:</label>
-                            <input type="range" id="elasticEffect" min="0" max="100" value="0">
-                            <span id="elasticPercent">0%</span>
-                        </div>
-                        <p class="deformation-description">Añade un efecto de "rebote" a la curva.</p>
-                        <div class="elastic-preview">
-                            <div class="elastic-demo" style="--i:0;"></div>
-                            <div class="elastic-demo" style="--i:1;"></div>
-                            <div class="elastic-demo" style="--i:2;"></div>
-                            <div class="elastic-demo" style="--i:3;"></div>
-                        </div>
-                    </div>
-                </div>
-                
                 <div class="control-group">
                     <h2><i class="fas fa-file-download"></i> Exportar Resultados</h2>
                     <button id="downloadCsvBtn"><i class="fas fa-file-csv"></i> Descargar CSV</button>
                     <button id="downloadExcelBtn"><i class="fas fa-file-excel"></i> Descargar Excel Modificado</button>
                     <div id="downloadStatus" class="status-message"></div>
                 </div>
-                
                 <div class="data-info">
                     <div class="info-card">
                         <h3><i class="fas fa-thermometer-quarter"></i> Mínimo Original</h3>
@@ -864,20 +653,85 @@
                         <p id="newMax" class="new-max">--</p>
                     </div>
                 </div>
+                <div id="pyodideLoading" class="pyodide-loading">
+                    <i class="fas fa-sync fa-spin"></i> Inicializando Python...
+                </div>
             </div>
-            
-            <div class="chart-container">
-                <canvas id="myChart"></canvas>
+            <div class="chart-area">
+                <div class="chart-container">
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+                <div class="deformation-controls">
+                    <h3><i class="fas fa-sliders-h"></i> Controles de Deformación</h3>
+                    <div class="toggle-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="smoothCurve" checked>
+                            <i class="fas fa-wave-circle"></i> Suavizar curva
+                        </label>
+                        <label class="toggle-label">
+                            <input type="checkbox" id="autoAdjust" checked>
+                            <i class="fas fa-magic"></i> Ajuste automático
+                        </label>
+                    </div>
+                    <div class="deformation-intensity">
+                        <span>Forma Original</span>
+                        <input type="range" id="shapeDeformation" min="0" max="100" value="50">
+                        <span>Máxima Deformación</span>
+                        <span id="deformationPercent">50%</span>
+                    </div>
+                    <div class="deformation-description">
+                        Deformación de forma - Altera subidas, bajadas y picos
+                    </div>
+                    <div class="deformation-intensity">
+                        <span>Comprimir</span>
+                        <input type="range" id="horizontalDeformation" min="0" max="100" value="50">
+                        <span>Expandir</span>
+                        <span id="horizontalPercent">50%</span>
+                    </div>
+                    <div class="deformation-description">
+                        Deformación horizontal - Controla la distribución temporal
+                    </div>
+                    <div class="deformation-intensity">
+                        <span>Menos Amplitud</span>
+                        <input type="range" id="verticalDeformation" min="0" max="100" value="50">
+                        <span>Más Amplitud</span>
+                        <span id="verticalPercent">50%</span>
+                    </div>
+                    <div class="deformation-description">
+                        Deformación vertical - Controla la amplitud de las variaciones
+                    </div>
+                </div>
+                <div class="elastic-effect-container">
+                    <h3><i class="fas fa-band-aid"></i> Control de Efecto Elástico</h3>
+                    <div class="deformation-intensity">
+                        <span>Sin Efecto</span>
+                        <input type="range" id="elasticEffect" min="0" max="100" value="70">
+                        <span>Máximo Efecto</span>
+                        <span id="elasticPercent">70%</span>
+                    </div>
+                    <div class="deformation-description">
+                        Crea ondulaciones naturales en zonas planas para simular variaciones realistas
+                    </div>
+                    <div class="elastic-preview">
+                        <div class="elastic-demo" style="--i: 0"></div>
+                        <div class="elastic-demo" style="--i: 1"></div>
+                        <div class="elastic-demo" style="--i: 2"></div>
+                        <div class="elastic-demo" style="--i: 3"></div>
+                        <div class="elastic-demo" style="--i: 4"></div>
+                    </div>
+                </div>
+                <div class="debug-info">
+                    <h4><i class="fas fa-bug"></i> Información de Depuración</h4>
+                    <div id="debugContent">Esperando datos...</div>
+                </div>
             </div>
         </div>
-        
         <footer>
-            <p>&copy; 2025 Extrapolador Avanzado. Todos los derechos reservados.</p>
+            <p><i class="fas fa-info-circle"></i> Extrapolador Avanzado para Excel y CSV | Procesa cualquier tipo de datos</p>
         </footer>
     </div>
-
     <script>
-        let pyodide = null;
+let pyodide = null;
         let chart = null;
         let originalData = {}; // Stores all sheet data from the loaded Excel/CSV
         let currentSheet = '';
@@ -1571,6 +1425,3 @@ create_excel(extrapolated_data_py, output_filename, sheet_name)
                 }
             });
         });
-    </script>
-</body>
-</html>
