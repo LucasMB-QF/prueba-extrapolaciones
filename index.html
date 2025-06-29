@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Extrapolador Avanzado - Solucionado</title>
+    <title>Extrapolador Avanzado - Solución Selectiva</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -782,6 +782,15 @@
             align-items: center;
             gap: 10px;
         }
+        
+        .target-indicator {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -789,34 +798,29 @@
     
     <div class="container">
         <header>
-            <h1><i class="fas fa-file-waveform"></i> Extrapolador Avanzado <span style="font-size: 0.8rem; background: #4CAF50; padding: 3px 8px; border-radius: 10px; vertical-align: middle;">PROBLEMA SOLUCIONADO</span></h1>
-            <p class="subtitle">Edita múltiples hojas y columnas en Excel con deformaciones avanzadas</p>
+            <h1><i class="fas fa-file-waveform"></i> Extrapolador Avanzado <span style="font-size: 0.8rem; background: #4CAF50; padding: 3px 8px; border-radius: 10px; vertical-align: middle;">SOLUCIÓN SELECTIVA</span></h1>
+            <p class="subtitle">Edita solo las columnas seleccionadas sin afectar otras partes del Excel</p>
         </header>
         
         <div class="controls">
             <div class="solution-highlight">
                 <h3><i class="fas fa-check-circle"></i> Problema Solucionado</h3>
-                <p>Ahora los cambios se aplican correctamente a todas las hojas y columnas del documento Excel.</p>
-                <p>Se optimizó el proceso de deformación y se mejoró la gestión de datos para garantizar que todas las modificaciones se reflejen en el archivo descargado.</p>
+                <p>Ahora los cambios se aplican <strong>solo en las columnas editadas</strong> y <strong>mantienen intactas</strong> las celdas vacías originales.</p>
+                <p>No se modifican otras hojas ni se añaden datos donde antes no existían.</p>
             </div>
             
             <div class="instructions">
-                <h3><i class="fas fa-lightbulb"></i> ¡Todo en uno!</h3>
+                <h3><i class="fas fa-lightbulb"></i> Modo de Uso</h3>
                 <ul>
-                    <li>Edita múltiples hojas y columnas en un solo archivo</li>
-                    <li>Aplica deformaciones individuales a cada columna</li>
-                    <li>Descarga un Excel completo con todas las modificaciones</li>
-                    <li>Visualización en tiempo real de los cambios</li>
+                    <li><strong>Seleccione una columna específica</strong> para editar</li>
+                    <li>Los cambios se aplican <strong>solo a esa columna</strong></li>
+                    <li>Las celdas vacías permanecen intactas</li>
+                    <li>Otras hojas no se ven afectadas</li>
                 </ul>
             </div>
             
-            <div class="merge-warning">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span>Las celdas combinadas se manejan automáticamente</span>
-            </div>
-            
-            <div class="realtime-update">
-                <i class="fas fa-sync-alt"></i> Los cambios se visualizan en tiempo real
+            <div class="target-indicator">
+                <i class="fas fa-bullseye"></i> <strong>Área de edición:</strong> <span id="editingTarget">No se ha seleccionado ninguna columna</span>
             </div>
             
             <div class="control-group" id="excelSection">
@@ -962,7 +966,7 @@
         </div>
         
         <footer>
-            <p><i class="fas fa-info-circle"></i> Extrapolador Avanzado | Edición completa de Excel</p>
+            <p><i class="fas fa-info-circle"></i> Extrapolador Avanzado | Edición selectiva de Excel</p>
         </footer>
     </div>
 
@@ -986,12 +990,12 @@
         let selectedSheet = "";
         let selectedColumn = "";
         let startRow = 1;
-        let dataStartRow = 1; // Almacena el startRow usado en la carga de datos
         let modifiedData = {};
         let currentSheetName = "";
         let currentColumnName = "";
         let isProcessing = false;
         let previewData = null;
+        let cellPositions = {}; // Almacena las posiciones de las celdas originales
 
         // Elementos del DOM
         const excelFileInput = document.getElementById('excelFile');
@@ -1033,6 +1037,7 @@
         const currentSheetNameElem = document.getElementById('currentSheetName');
         const currentColumnNameElem = document.getElementById('currentColumnName');
         const notificationArea = document.getElementById('notificationArea');
+        const editingTarget = document.getElementById('editingTarget');
 
         // Función para mostrar notificaciones
         function showNotification(message, type = 'info', duration = 3000) {
@@ -1106,7 +1111,7 @@
                 excelProgressContainer.style.display = 'block';
                 excelProgressBar.style.width = '0%';
                 
-                dataStartRow = parseInt(startRowInput.value) || 1;
+                startRow = parseInt(startRowInput.value) || 1;
                 const arrayBuffer = await excelFile.arrayBuffer();
                 const bytes = new Uint8Array(arrayBuffer);
                 
@@ -1123,28 +1128,42 @@ from openpyxl.utils import get_column_letter
 from openpyxl.cell.cell import MergedCell
 
 def process_excel():
-    output = {"sheets": [], "excel_data": {}, "debug_info": ""}
+    output = {
+        "sheets": [],
+        "excel_data": {},
+        "cell_positions": {},
+        "debug_info": ""
+    }
     try:
-        start = ${dataStartRow}
+        start = ${startRow}
         wb = load_workbook(${filename}, data_only=True)
         output["sheets"] = wb.sheetnames
         output["debug_info"] += "Se encontraron {} hojas\\n".format(len(wb.sheetnames))
+        
         for sheet in wb.sheetnames:
             ws = wb[sheet]
             min_row = start
             max_row = ws.max_row
             output["debug_info"] += "\\nHoja: {} (Filas: {}-{})\\n".format(sheet, min_row, max_row)
+            
             sheet_data = {}
+            cell_positions = {}
+            
             for col_idx in range(1, ws.max_column + 1):
                 col_letter = get_column_letter(col_idx)
                 col_values = []
+                positions = []
+                
                 for row_idx in range(min_row, max_row + 1):
                     cell = ws.cell(row=row_idx, column=col_idx)
+                    
                     # Saltar celdas combinadas que no son la principal
                     if isinstance(cell, MergedCell):
                         continue
+                    
                     if cell.value is None:
                         continue
+                    
                     try:
                         if isinstance(cell.value, (int, float)):
                             num = float(cell.value)
@@ -1152,20 +1171,27 @@ def process_excel():
                             val = str(cell.value).strip().replace("°C", "").replace(" ", "")
                             val = re.sub(r'[^\\d.,-]', '', val).replace(",", ".")
                             num = float(val)
+                        
                         col_values.append(num)
+                        positions.append(row_idx)  # Guardar la fila original
                     except:
                         output["debug_info"] += "  Celda {}{} inválida: '{}'\\n".format(col_letter, row_idx, cell.value)
+                
                 if col_values:
                     sheet_data[col_letter] = col_values
+                    cell_positions[col_letter] = positions
                     output["debug_info"] += "  Col {}: {} valores\\n".format(col_letter, len(col_values))
+            
             output["excel_data"][sheet] = sheet_data
+            output["cell_positions"][sheet] = cell_positions
+        
         output["debug_info"] += "\\nProcesamiento completado"
     except Exception as e:
         output["debug_info"] += "\\nERROR: {}\\n".format(str(e)) + traceback.format_exc()
     return json.dumps(output)
 
 result_json = process_excel()
-`.replace('${dataStartRow}', dataStartRow).replace('${filename}', filename);
+`.replace('${startRow}', startRow).replace('${filename}', filename);
 
                 // Ejecutar script Python
                 await pyodide.runPythonAsync(script);
@@ -1178,8 +1204,8 @@ result_json = process_excel()
                 // Verificar si se obtuvieron datos
                 if (parsed && parsed.excel_data) {
                     originalData = parsed.excel_data;
-                    // Inicializar modifiedData con una copia profunda
-                    modifiedData = JSON.parse(JSON.stringify(originalData));
+                    cellPositions = parsed.cell_positions; // Guardar posiciones de celdas
+                    modifiedData = {}; // Resetear modificaciones
                 } else {
                     throw new Error("El script de Python no retornó datos válidos");
                 }
@@ -1241,6 +1267,7 @@ result_json = process_excel()
                     currentColumnName = selectedColumn;
                     currentSheetNameElem.textContent = selectedSheet;
                     currentColumnNameElem.textContent = selectedColumn;
+                    editingTarget.textContent = `${selectedSheet} - Columna ${selectedColumn}`;
                     
                     // Mostrar sección de deformación
                     deformationSection.style.display = 'block';
@@ -1419,7 +1446,10 @@ result_json = process_excel()
             
             const columnData = originalData[selectedSheet][selectedColumn];
             
-            // Guardar la deformación calculada
+            // Guardar la deformación calculada solo para esta columna
+            if (!modifiedData[selectedSheet]) {
+                modifiedData[selectedSheet] = {};
+            }
             modifiedData[selectedSheet][selectedColumn] = previewData;
             
             // Actualizar estadísticas
@@ -1430,7 +1460,7 @@ result_json = process_excel()
             
             deformationStatus.textContent = "Cambios aplicados al documento";
             deformationStatus.className = "status-message success";
-            showNotification("Cambios aplicados al documento", "success");
+            showNotification("Cambios aplicados SOLO a esta columna", "success");
         }
 
         // Procesar Excel con los datos deformados
@@ -1459,8 +1489,12 @@ result_json = process_excel()
                 // Pasar a Python
                 pyodide.FS.writeFile(excelFile.name, bytes);
                 
-                // Convertir modifiedData a JSON
-                const modifiedDataJson = JSON.stringify(modifiedData);
+                // Convertir datos a JSON
+                const dataToSave = {
+                    modifiedData: modifiedData,
+                    cellPositions: cellPositions
+                };
+                const dataJson = JSON.stringify(dataToSave);
                 
                 // Ejecutar script Python para modificar el Excel
                 const script = `
@@ -1470,29 +1504,33 @@ from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string
 from openpyxl.cell.cell import MergedCell
 
-def process_excel(modified_data):
+def process_excel(data):
     try:
         # 1. Leer archivo original
         filename = '${excelFile.name}'
         wb = load_workbook(filename, keep_vba=True, data_only=True)
         
-        # 2. Aplicar datos modificados
-        for sheet_name, columns in modified_data.items():
+        # 2. Aplicar datos modificados SOLO donde había datos originales
+        for sheet_name, columns in data['modifiedData'].items():
             if sheet_name in wb.sheetnames:
                 ws = wb[sheet_name]
                 for col_letter, values in columns.items():
-                    col_idx = column_index_from_string(col_letter)
-                    for i, value in enumerate(values):
-                        row_index = ${dataStartRow} + i
-                        cell = ws.cell(row=row_index, column=col_idx)
+                    if col_letter in data['cellPositions'].get(sheet_name, {}):
+                        positions = data['cellPositions'][sheet_name][col_letter]
+                        col_idx = column_index_from_string(col_letter)
                         
-                        # Verificar si la celda es parte de un rango combinado
-                        if isinstance(cell, MergedCell):
-                            # Saltar celdas combinadas que no son la principal
-                            continue
-                        
-                        # Convertir a float antes de asignar
-                        cell.value = float(value)
+                        # Escribir solo en las celdas originales
+                        for i, value in enumerate(values):
+                            if i < len(positions):
+                                row_idx = positions[i]
+                                cell = ws.cell(row=row_idx, column=col_idx)
+                                
+                                # Verificar si la celda es parte de un rango combinado
+                                if isinstance(cell, MergedCell):
+                                    continue
+                                
+                                # Convertir a float antes de asignar
+                                cell.value = float(value)
         
         # 3. Guardar cambios
         output_filename = 'modified_' + filename
@@ -1503,8 +1541,8 @@ def process_excel(modified_data):
         return f"ERROR: {str(e)}\\n{traceback.format_exc()}"
 
 # ===== EJECUCIÓN =====
-modified_data = json.loads('''${modifiedDataJson}''')
-result = process_excel(modified_data)
+data = json.loads('''${dataJson}''')
+result = process_excel(data)
 `;
                 // Ejecutar script
                 await pyodide.runPythonAsync(script);
@@ -1529,7 +1567,7 @@ result = process_excel(modified_data)
                 
                 downloadStatus.textContent = "Excel modificado descargado";
                 downloadStatus.className = "status-message success";
-                showNotification("Excel modificado descargado correctamente", "success");
+                showNotification("Excel descargado con modificaciones selectivas", "success");
                 
             } catch (error) {
                 downloadStatus.textContent = "Error al procesar Excel: " + error.message;
