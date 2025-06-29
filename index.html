@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Extrapolador Avanzado - Soporte Multi-Formato</title>
+    <title>Extrapolador Avanzado - Versión Mejorada</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -33,24 +33,24 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.5;
+            line-height: 1.6;
             color: var(--dark);
             background: var(--bg-gradient);
             min-height: 100vh;
             padding: 15px;
             overflow-x: hidden;
-            font-size: 14px;
+            font-size: 15px;
         }
         
         .container {
             max-width: 1600px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.97);
+            background: rgba(255, 255, 255, 0.98);
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
             overflow: hidden;
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             display: grid;
             grid-template-columns: 1.1fr 1fr;
             grid-template-rows: auto 1fr auto;
@@ -65,7 +65,7 @@
             grid-area: header;
             background: linear-gradient(to right, #2c3e50, #4a6491);
             color: white;
-            padding: 15px 25px;
+            padding: 18px 30px;
             text-align: center;
             border-bottom: 2px solid var(--accent);
             position: relative;
@@ -73,121 +73,144 @@
         }
         
         h1 {
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
         }
         
         .subtitle {
-            font-size: 0.95rem;
-            opacity: 0.9;
-            max-width: 700px;
+            font-size: 1.05rem;
+            opacity: 0.92;
+            max-width: 750px;
             margin: 0 auto;
             font-weight: 300;
+            line-height: 1.4;
         }
         
         .controls {
             grid-area: controls;
-            padding: 20px;
+            padding: 25px;
             background: var(--light);
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
         }
         
         .chart-area {
             grid-area: chart;
             display: flex;
             flex-direction: column;
-            padding: 20px;
+            padding: 25px;
             background: white;
-            border-left: 1px solid #e0e0e0;
+            border-left: 1px solid #eaeaea;
             height: 100%;
         }
         
         .chart-container {
             flex: 1;
-            min-height: 300px;
+            min-height: 350px;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
             border: 1px solid #e0e0e0;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
         }
         
         .control-group {
-            padding: 15px;
+            padding: 20px;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+        }
+        
+        .control-group:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
         .control-group h2 {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             color: var(--primary);
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
         }
         
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
         
         label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             font-weight: 600;
             color: var(--dark);
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.95rem;
+            gap: 8px;
+            font-size: 1rem;
         }
         
         input[type="text"], input[type="file"], select {
             width: 100%;
-            padding: 10px;
+            padding: 12px 15px;
             border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
             background: white;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         }
         
         input[type="text"]:focus, input[type="file"]:focus, select:focus {
             border-color: var(--secondary);
             outline: none;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
         }
         
         .range-container {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 15px;
+            margin-bottom: 15px;
         }
         
+        /* Estilos mejorados para controles deslizantes */
         .range-container input[type="range"] {
             flex: 1;
-            height: 6px;
+            height: 10px;
             -webkit-appearance: none;
-            background: #ddd;
-            border-radius: 5px;
+            background: linear-gradient(to right, #e0e0e0, #d0d0d0);
+            border-radius: 10px;
             outline: none;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s;
         }
         
         .range-container input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            border: 3px solid white;
             transition: all 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .range-container input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
         }
         
         #minTempRange::-webkit-slider-thumb { 
@@ -196,36 +219,60 @@
         #maxTempRange::-webkit-slider-thumb { 
             background: var(--accent);
         }
+        #shapeDeformation::-webkit-slider-thumb { background: var(--variation); }
+        #horizontalDeformation::-webkit-slider-thumb { background: var(--horizontal); }
+        #verticalDeformation::-webkit-slider-thumb { background: var(--vertical); }
+        #elasticEffect::-webkit-slider-thumb { background: var(--elastic); }
         
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 8px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            gap: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20px;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(25deg);
+            transition: all 0.6s;
         }
         
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.18);
+        }
+        
+        button:hover::after {
+            left: 120%;
         }
         
         button:active {
-            transform: translateY(1px);
+            transform: translateY(2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         }
         
         button:disabled {
             opacity: 0.7;
             cursor: not-allowed;
+            transform: none;
         }
         
         #loadBtn {
@@ -250,29 +297,34 @@
         
         .data-info {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-top: 18px;
             text-align: center;
         }
         
         .info-card {
             background: white;
-            border-radius: 6px;
-            padding: 10px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-            transition: all 0.2s;
-            border: 1px solid rgba(0,0,0,0.03);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
+            transition: all 0.3s;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        
+        .info-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
         .info-card h3 {
-            font-size: 0.9rem;
-            margin-bottom: 6px;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
             color: var(--primary);
         }
         
         .info-card p {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
         }
         
@@ -284,31 +336,31 @@
         footer {
             grid-area: footer;
             text-align: center;
-            padding: 12px;
+            padding: 15px;
             color: var(--dark);
-            font-size: 0.8rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.08);
-            background: rgba(236, 240, 241, 0.7);
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.09);
+            background: rgba(236, 240, 241, 0.75);
         }
         
         .status-message {
-            padding: 8px;
-            margin-top: 8px;
-            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
             text-align: center;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
         
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .warning { background: #fff3cd; color: #856404; }
+        .success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        .warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
         
         .progress-container {
-            height: 6px;
+            height: 8px;
             background: #e0e0e0;
-            border-radius: 3px;
-            margin-top: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
             overflow: hidden;
             display: none;
         }
@@ -317,38 +369,40 @@
             height: 100%;
             background: var(--secondary);
             width: 0%;
-            transition: width 0.3s;
+            transition: width 0.5s;
+            border-radius: 4px;
         }
         
         .instructions {
             background: linear-gradient(to right, #e3f2fd, #bbdefb);
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
-            border-left: 3px solid var(--secondary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--secondary);
         }
         
         .instructions h3 {
             margin-top: 0;
             color: var(--primary);
-            font-size: 1rem;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 10px;
+            margin-bottom: 10px;
         }
         
         .instructions ul {
-            padding-left: 18px;
-            margin: 8px 0;
+            padding-left: 20px;
+            margin: 10px 0;
         }
         
         .instructions li {
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             position: relative;
-            padding-left: 20px;
-            font-size: 0.85rem;
+            padding-left: 25px;
+            font-size: 0.9rem;
+            line-height: 1.5;
         }
         
         .instructions li:before {
@@ -358,84 +412,54 @@
             position: absolute;
             left: 0;
             top: 0;
-            font-size: 1.1em;
+            font-size: 1.3em;
         }
         
         .deformation-controls {
             background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
+            padding: 18px;
+            border-radius: 8px;
             border: 1px solid #e9ecef;
-            margin-top: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            margin-top: 15px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.04);
         }
         
         .deformation-controls h3 {
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             border-bottom: 1px solid var(--primary);
-            padding-bottom: 8px;
-            font-size: 1.1rem;
+            padding-bottom: 10px;
+            font-size: 1.15rem;
         }
         
         .deformation-intensity {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding: 8px;
-            background: rgba(255,255,255,0.7);
-            border-radius: 6px;
-        }
-        
-        .deformation-intensity input[type="range"] {
-            flex: 1;
-            height: 10px;
-            -webkit-appearance: none;
-            background: linear-gradient(to right, #e0e0e0, #d0d0d0);
+            gap: 15px;
+            margin-bottom: 18px;
+            padding: 10px;
+            background: rgba(255,255,255,0.8);
             border-radius: 8px;
-            outline: none;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+            transition: all 0.3s;
         }
         
-        .deformation-intensity input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            border: 2px solid white;
-        }
-        
-        #shapeDeformation::-webkit-slider-thumb {
-            background: var(--variation);
-        }
-        
-        #horizontalDeformation::-webkit-slider-thumb {
-            background: var(--horizontal);
-        }
-        
-        #verticalDeformation::-webkit-slider-thumb {
-            background: var(--vertical);
-        }
-        
-        #elasticEffect::-webkit-slider-thumb {
-            background: var(--elastic);
+        .deformation-intensity:hover {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
         
         .deformation-intensity span {
-            min-width: 35px;
+            min-width: 45px;
             text-align: center;
             font-weight: bold;
-            font-size: 0.85em;
-            padding: 3px 6px;
-            border-radius: 3px;
-            background: rgba(0,0,0,0.03);
+            font-size: 0.9rem;
+            padding: 5px 8px;
+            border-radius: 5px;
+            background: rgba(0,0,0,0.04);
         }
         
         #deformationPercent {
@@ -455,15 +479,24 @@
         
         #elasticPercent {
             color: var(--elastic);
-            background: rgba(230, 126, 34, 0.1);
+            background: rgba(230, 126, 34, 0.15);
+            font-weight: 800;
+        }
+        
+        .deformation-description {
+            margin-top: 5px;
+            font-size: 0.85rem;
+            color: #5a6268;
+            padding: 0 10px;
+            font-style: italic;
         }
         
         .toggle-group {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 10px;
         }
         
         .toggle-label {
@@ -471,60 +504,21 @@
             align-items: center;
             cursor: pointer;
             font-weight: 500;
-            background: rgba(0,0,0,0.03);
-            padding: 6px 10px;
-            border-radius: 15px;
-            transition: all 0.2s;
-            font-size: 0.9rem;
+            background: rgba(0,0,0,0.04);
+            padding: 8px 14px;
+            border-radius: 20px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
         }
         
         .toggle-label:hover {
-            background: rgba(0,0,0,0.06);
+            background: rgba(0,0,0,0.07);
         }
         
         .toggle-label input {
-            margin-right: 6px;
+            margin-right: 8px;
             cursor: pointer;
-        }
-        
-        .elastic-preview {
-            display: flex;
-            justify-content: center;
-            margin-top: 8px;
-            gap: 8px;
-        }
-        
-        .elastic-demo {
-            width: 16px;
-            height: 8px;
-            background: var(--elastic);
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-            animation: elastic-pulse 1.5s infinite;
-            animation-delay: calc(var(--i) * 0.2s);
-        }
-        
-        @keyframes elastic-pulse {
-            0% { transform: scaleX(1); }
-            50% { transform: scaleX(0.4); }
-            100% { transform: scaleX(1); }
-        }
-        
-        .elastic-demo:before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                to right,
-                transparent,
-                transparent 2px,
-                rgba(255,255,255,0.5) 2px,
-                rgba(255,255,255,0.5) 4px
-            );
+            transform: scale(1.2);
         }
         
         @media (max-width: 1000px) {
@@ -547,66 +541,39 @@
         .pyodide-loading {
             background: #f1c40f;
             color: #2c3e50;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 15px;
+            border-radius: 8px;
             text-align: center;
-            margin-top: 15px;
+            margin-top: 20px;
             font-weight: bold;
             display: none;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
         
         .sheet-selection {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 12px;
-        }
-        
-        .tab-container {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        
-        .tab {
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            background: #e0e0e0;
-            font-weight: 600;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-        }
-        
-        .tab.active {
-            background: var(--secondary);
-            color: white;
+            gap: 15px;
+            margin-top: 15px;
         }
         
         .debug-info {
             background: #f8f9fa;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 15px;
+            border-radius: 8px;
             font-family: monospace;
-            font-size: 0.85rem;
-            margin-top: 15px;
-            max-height: 150px;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            max-height: 180px;
             overflow-y: auto;
             border: 1px solid #e9ecef;
-        }
-        
-        .decimal-hint {
-            font-size: 0.8rem;
-            color: #6c757d;
-            margin-top: 4px;
-            font-style: italic;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         }
         
         .row-range {
             display: flex;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 10px;
+            margin-top: 15px;
         }
         
         .row-range > div {
@@ -616,39 +583,48 @@
         .compact-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 12px;
         }
         
         .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
         .chart-header h2 {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
         
         .column-list {
-            max-height: 150px;
+            max-height: 180px;
             overflow-y: auto;
-            margin-top: 10px;
+            margin-top: 15px;
             border: 1px solid #eee;
-            border-radius: 6px;
-            padding: 8px;
+            border-radius: 8px;
+            padding: 10px;
+            background: #f9f9f9;
         }
         
         .column-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px;
+            padding: 8px;
             border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s;
+        }
+        
+        .column-item:hover {
+            background: #f0f7ff;
+            border-radius: 6px;
         }
         
         .column-item:last-child {
@@ -657,40 +633,57 @@
         
         .column-name {
             font-weight: 500;
+            font-size: 0.95rem;
         }
         
         .edit-btn {
-            padding: 4px 8px;
+            padding: 5px 12px;
             background: var(--secondary);
             color: white;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .edit-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
         }
         
         .data-stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 12px;
+            margin-top: 20px;
         }
         
         .stat-card {
             background: #f8f9fa;
-            border-radius: 8px;
-            padding: 12px;
+            border-radius: 10px;
+            padding: 15px;
             text-align: center;
             border: 1px solid #e9ecef;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
         
         .stat-card h3 {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--primary);
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
         
         .stat-card p {
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             font-weight: bold;
         }
         
@@ -700,27 +693,32 @@
         .merge-warning {
             background: #fff3cd;
             color: #856404;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px 0;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            border-left: 4px solid #ffc107;
         }
         
         .notification {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 8px;
+            bottom: 25px;
+            right: 25px;
+            padding: 18px 30px;
+            border-radius: 10px;
             color: white;
             font-weight: 500;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
             z-index: 1000;
             transform: translateY(100px);
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            max-width: 400px;
         }
         
         .notification.show {
@@ -746,7 +744,7 @@
         
         .spinner {
             animation: spin 1s linear infinite;
-            margin-right: 8px;
+            margin-right: 10px;
         }
         
         @keyframes spin {
@@ -754,48 +752,27 @@
             100% { transform: rotate(360deg); }
         }
         
-        .realtime-update {
-            background: #e3f2fd;
-            padding: 8px;
-            border-radius: 6px;
-            text-align: center;
-            margin-top: 10px;
-            font-size: 0.85rem;
-            border: 1px solid #bbdefb;
-        }
-        
-        .solution-highlight {
-            background: #e1f7d5;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border-left: 4px solid #4caf50;
-        }
-        
-        .solution-highlight h3 {
-            color: #2e7d32;
-            margin-top: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
         .target-indicator {
             background: #e3f2fd;
             border: 1px solid #bbdefb;
-            padding: 8px;
-            border-radius: 6px;
+            padding: 12px;
+            border-radius: 8px;
             text-align: center;
-            margin-top: 10px;
+            margin-top: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         
         .format-badge {
             display: inline-block;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-left: 8px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-left: 10px;
         }
         
         .excel-badge { background: var(--excel); color: white; }
@@ -804,15 +781,15 @@
         
         .format-options {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 12px;
+            margin-top: 15px;
         }
         
         .format-btn {
             flex: 1;
-            padding: 8px;
+            padding: 10px;
             text-align: center;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 600;
@@ -821,22 +798,50 @@
         
         .format-btn.active {
             border-color: var(--primary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
         }
         
         .format-btn.excel {
-            background: rgba(33, 115, 70, 0.1);
+            background: rgba(33, 115, 70, 0.12);
             color: var(--excel);
         }
         
         .format-btn.csv {
-            background: rgba(243, 156, 18, 0.1);
+            background: rgba(243, 156, 18, 0.12);
             color: var(--csv);
         }
         
         .format-btn.txt {
-            background: rgba(127, 140, 141, 0.1);
+            background: rgba(127, 140, 141, 0.12);
             color: var(--txt);
+        }
+        
+        .solution-highlight {
+            background: #e1f7d5;
+            padding: 18px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #4caf50;
+        }
+        
+        .solution-highlight h3 {
+            color: #2e7d32;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.2rem;
+        }
+        
+        .enhancement-tag {
+            background: rgba(76, 175, 80, 0.2);
+            color: #2e7d32;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -845,29 +850,30 @@
     
     <div class="container">
         <header>
-            <h1><i class="fas fa-file-waveform"></i> Extrapolador Avanzado <span class="format-badge excel-badge">SOPORTE MULTI-FORMATO</span></h1>
-            <p class="subtitle">Edita Excel, CSV y archivos de texto con deformaciones avanzadas</p>
+            <h1><i class="fas fa-file-waveform"></i> Extrapolador Avanzado <span class="format-badge excel-badge">VERSIÓN MEJORADA</span></h1>
+            <p class="subtitle">Soporte completo para Excel, CSV y archivos de texto con mejoras en suavizado y controles</p>
         </header>
         
         <div class="controls">
             <div class="solution-highlight">
-                <h3><i class="fas fa-check-circle"></i> Nuevas Funciones</h3>
-                <p>Soporte completo para múltiples formatos de archivo:</p>
+                <h3><i class="fas fa-check-circle"></i> Mejoras Implementadas</h3>
                 <ul>
-                    <li>Excel (XLSX, XLSM) con múltiples hojas</li>
-                    <li>Archivos CSV con cualquier número de columnas</li>
-                    <li>Archivos de texto plano con una columna</li>
-                    <li>Procesamiento unificado para todos los formatos</li>
+                    <li><span class="enhancement-tag">FIXED</span> Procesamiento de CSV/TXT completamente funcional</li>
+                    <li><span class="enhancement-tag">UI</span> Controles deslizantes con diseño mejorado</li>
+                    <li><span class="enhancement-tag">ALGORITHM</span> Suavizado avanzado para picos agudos</li>
+                    <li><span class="enhancement-tag">FEATURE</span> Efecto elástico amplificado</li>
+                    <li><span class="enhancement-tag">PERFORMANCE</span> Optimización general del sistema</li>
                 </ul>
             </div>
             
             <div class="instructions">
                 <h3><i class="fas fa-lightbulb"></i> Modo de Uso</h3>
                 <ul>
-                    <li><strong>Seleccione cualquier formato</strong> compatible</li>
-                    <li>Los archivos CSV y texto se procesarán automáticamente</li>
-                    <li>Excel mantiene soporte para múltiples hojas</li>
-                    <li>Descargue en el mismo formato original o exporte a otros</li>
+                    <li>Cargue archivos Excel, CSV o de texto plano</li>
+                    <li>Seleccione la columna a modificar</li>
+                    <li>Ajuste los parámetros de deformación con los nuevos controles</li>
+                    <li>Visualice los cambios en tiempo real en el gráfico</li>
+                    <li>Descargue el archivo modificado en el formato deseado</li>
                 </ul>
             </div>
             
@@ -916,7 +922,7 @@
                     <label for="minTemp"><i class="fas fa-temperature-low"></i> Mínima:</label>
                     <div class="compact-group">
                         <input type="text" id="minTemp" placeholder="Ej: 15,5" style="flex: 1;">
-                        <span id="minTempValue" class="info-card" style="width: 80px; text-align: center;">-- °C</span>
+                        <span id="minTempValue" class="info-card" style="width: 90px; text-align: center;">-- °C</span>
                     </div>
                     <input type="range" id="minTempRange" min="-10" max="50" step="0.5">
                 </div>
@@ -925,39 +931,43 @@
                     <label for="maxTemp"><i class="fas fa-temperature-high"></i> Máxima:</label>
                     <div class="compact-group">
                         <input type="text" id="maxTemp" placeholder="Ej: 32,0" style="flex: 1;">
-                        <span id="maxTempValue" class="info-card" style="width: 80px; text-align: center;">-- °C</span>
+                        <span id="maxTempValue" class="info-card" style="width: 90px; text-align: center;">-- °C</span>
                     </div>
                     <input type="range" id="maxTempRange" min="0" max="60" step="0.5">
                 </div>
                 
                 <div class="deformation-intensity">
-                    <span>Forma</span>
+                    <span><i class="fas fa-shapes"></i> Forma</span>
                     <input type="range" id="shapeDeformation" min="0" max="100" value="50">
                     <span id="deformationPercent">50%</span>
                 </div>
+                <div class="deformation-description">Controla la intensidad de la deformación global</div>
                 
                 <div class="deformation-intensity">
-                    <span>Horizontal</span>
+                    <span><i class="fas fa-arrows-alt-h"></i> Horizontal</span>
                     <input type="range" id="horizontalDeformation" min="0" max="100" value="50">
                     <span id="horizontalPercent">50%</span>
                 </div>
+                <div class="deformation-description">Ajusta la deformación en el eje horizontal</div>
                 
                 <div class="deformation-intensity">
-                    <span>Vertical</span>
+                    <span><i class="fas fa-arrows-alt-v"></i> Vertical</span>
                     <input type="range" id="verticalDeformation" min="0" max="100" value="50">
                     <span id="verticalPercent">50%</span>
                 </div>
+                <div class="deformation-description">Controla la deformación en el eje vertical</div>
                 
                 <div class="deformation-intensity">
-                    <span>Elástico</span>
+                    <span><i class="fas fa-expand-alt"></i> Elástico</span>
                     <input type="range" id="elasticEffect" min="0" max="100" value="70">
                     <span id="elasticPercent">70%</span>
                 </div>
+                <div class="deformation-description">Efecto amplificado para zonas planas</div>
                 
                 <div class="toggle-group">
                     <label class="toggle-label">
                         <input type="checkbox" id="smoothCurve" checked>
-                        <i class="fas fa-wave-circle"></i> Suavizar curva
+                        <i class="fas fa-wave-circle"></i> Suavizado avanzado
                     </label>
                     <label class="toggle-label">
                         <input type="checkbox" id="autoAdjust" checked>
@@ -1006,14 +1016,14 @@
             </div>
             
             <div id="pyodideLoading" class="pyodide-loading">
-                <i class="fas fa-sync fa-spin"></i> Inicializando Python...
+                <i class="fas fa-sync fa-spin spinner"></i> Inicializando entorno Python...
             </div>
         </div>
         
         <div class="chart-area">
             <div class="chart-header">
                 <h2><i class="fas fa-chart-line"></i> Visualización de Datos</h2>
-                <div id="currentColumnInfo" class="info-card" style="padding: 8px; text-align: center;">
+                <div id="currentColumnInfo" class="info-card" style="padding: 10px; text-align: center; min-width: 250px;">
                     Hoja: <span id="currentSheetName">--</span> | Columna: <span id="currentColumnName">--</span>
                 </div>
             </div>
@@ -1029,7 +1039,7 @@
         </div>
         
         <footer>
-            <p><i class="fas fa-info-circle"></i> Extrapolador Avanzado | Soporte para Excel, CSV y TXT</p>
+            <p><i class="fas fa-info-circle"></i> Extrapolador Avanzado | Soporte para Excel, CSV y TXT - Versión Mejorada</p>
         </footer>
     </div>
 
@@ -1327,7 +1337,7 @@ result_json = process_excel()
             });
         }
 
-        // Procesar archivo CSV
+        // Procesar archivo CSV (versión mejorada)
         async function processCsvFile() {
             const text = await inputFile.text();
             csvContent = text;
@@ -1354,9 +1364,17 @@ result_json = process_excel()
                     const colLetter = String.fromCharCode(65 + col);
                     if (col < row.length) {
                         const value = row[col].trim();
-                        const numValue = parseFloat(value);
-                        sheetData[colLetter].push(isNaN(numValue) ? value : numValue);
-                        positions[colLetter].push(i + 1);
+                        // Manejar números con comas decimales
+                        const cleanedValue = value.replace(/[^\d.,-]/g, '').replace(',', '.');
+                        const numValue = parseFloat(cleanedValue);
+                        
+                        if (!isNaN(numValue)) {
+                            sheetData[colLetter].push(numValue);
+                            positions[colLetter].push(i + 1);
+                        } else if (value !== '') {
+                            // Mantener valores no numéricos pero mostrar advertencia
+                            debugInfo.textContent += `Valor no numérico en fila ${i+1}, col ${colLetter}: ${value}\n`;
+                        }
                     }
                 }
             }
@@ -1375,7 +1393,7 @@ result_json = process_excel()
             fileProgressBar.style.width = '70%';
         }
 
-        // Procesar archivo de texto
+        // Procesar archivo de texto (versión mejorada)
         async function processTextFile() {
             const text = await inputFile.text();
             const lines = text.split('\n').map(line => line.trim()).filter(line => line !== '');
@@ -1392,9 +1410,17 @@ result_json = process_excel()
             // Procesar líneas
             for (let i = startRow - 1; i < lines.length; i++) {
                 const value = lines[i];
-                const numValue = parseFloat(value);
-                sheetData["A"].push(isNaN(numValue) ? value : numValue);
-                positions["A"].push(i + 1);
+                // Manejar números con comas decimales
+                const cleanedValue = value.replace(/[^\d.,-]/g, '').replace(',', '.');
+                const numValue = parseFloat(cleanedValue);
+                
+                if (!isNaN(numValue)) {
+                    sheetData["A"].push(numValue);
+                    positions["A"].push(i + 1);
+                } else if (value !== '') {
+                    // Mantener valores no numéricos pero mostrar advertencia
+                    debugInfo.textContent += `Valor no numérico en fila ${i+1}: ${value}\n`;
+                }
             }
             
             originalData = { "Datos TXT": sheetData };
@@ -1478,7 +1504,7 @@ result_json = process_excel()
             updateChart(columnData, previewData);
         }
 
-        // Calcular deformación (sin guardar)
+        // Calcular deformación (sin guardar) con mejoras
         function calculateDeformation(columnData) {
             const originalRange = maxOriginal - minOriginal;
             const newRange = maxTemp - minTemp;
@@ -1514,14 +1540,14 @@ result_json = process_excel()
                 });
             }
             
-            // Aplicar efecto elástico
+            // Aplicar efecto elástico AMPLIFICADO
             if (elasticEffect > 0) {
                 deformedData = applyElasticEffect(deformedData, elasticEffect);
             }
             
-            // Suavizar
+            // Suavizado avanzado
             if (smoothCurve) {
-                deformedData = smoothData(deformedData);
+                deformedData = advancedSmoothing(deformedData);
             }
             
             return deformedData;
@@ -1533,18 +1559,31 @@ result_json = process_excel()
             return x - Math.floor(x);
         }
 
-        // Función para suavizar datos
-        function smoothData(data, windowSize = 3) {
+        // Suavizado avanzado para manejar picos agudos
+        function advancedSmoothing(data) {
             const smoothed = [];
-            for (let i = 0; i < data.length; i++) {
-                const start = Math.max(0, i - Math.floor(windowSize/2));
-                const end = Math.min(data.length, i + Math.ceil(windowSize/2));
+            const n = data.length;
+            
+            // Coeficientes para un filtro gaussiano de 5 puntos
+            const weights = [0.06136, 0.24477, 0.38774, 0.24477, 0.06136];
+            const halfWindow = 2;
+            
+            for (let i = 0; i < n; i++) {
                 let sum = 0;
-                for (let j = start; j < end; j++) {
-                    sum += data[j];
+                let weightSum = 0;
+                
+                for (let j = -halfWindow; j <= halfWindow; j++) {
+                    const idx = i + j;
+                    if (idx >= 0 && idx < n) {
+                        const weight = weights[j + halfWindow];
+                        sum += data[idx] * weight;
+                        weightSum += weight;
+                    }
                 }
-                smoothed[i] = sum / (end - start);
+                
+                smoothed[i] = sum / weightSum;
             }
+            
             return smoothed;
         }
 
@@ -1566,13 +1605,14 @@ result_json = process_excel()
             return flatZones;
         }
 
-        // Aplicar efecto elástico
+        // Aplicar efecto elástico AMPLIFICADO
         function applyElasticEffect(data, intensity) {
             if (intensity <= 0) return data;
             
             const newData = [...data];
             const flatZones = detectFlatZones(data);
-            const amplitude = intensity * 0.15 * (maxTemp - minTemp);
+            // Amplificación del efecto elástico
+            const amplitude = intensity * 0.25 * (maxTemp - minTemp);
             
             flatZones.forEach(index => {
                 const wave1 = Math.sin(index * 0.5) * amplitude * noise(index);
@@ -1580,7 +1620,7 @@ result_json = process_excel()
                 const wave3 = Math.sin(index * 1.2) * amplitude * 0.5 * noise(index*1.7);
                 
                 const combinedWave = (wave1 + wave2 + wave3) / 2.2;
-                newData[index] += combinedWave;
+                newData[index] += combinedWave * 1.5; // Factor de amplificación adicional
                 
                 // Asegurar que no exceda los límites
                 if (newData[index] < minTemp) newData[index] = minTemp;
@@ -1789,7 +1829,7 @@ result = process_excel(data)
                 for (let j = 0; j < colLetters.length; j++) {
                     const col = colLetters[j];
                     if (sheet[col] && i < sheet[col].length) {
-                        row.push(sheet[col][i]);
+                        row.push(sheet[col][i].toFixed(2).replace('.', ','));
                     } else {
                         row.push('');
                     }
@@ -1818,7 +1858,7 @@ result = process_excel(data)
             const values = sheet[colLetter];
             
             // Construir contenido de texto
-            let textContent = values.map(val => val.toString()).join('\n');
+            let textContent = values.map(val => val.toFixed(2).replace('.', ',')).join('\n');
             
             // Descargar
             const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8;' });
@@ -1964,7 +2004,7 @@ result = process_excel(data)
                             data: [],
                             borderColor: '#3498db',
                             backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                            borderWidth: 2,
+                            borderWidth: 3,
                             pointRadius: 0,
                             tension: 0.4,
                             fill: false
@@ -1974,28 +2014,28 @@ result = process_excel(data)
                             data: [],
                             borderColor: '#e74c3c',
                             backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                            borderWidth: 2,
+                            borderWidth: 3,
                             pointRadius: 0,
-                            tension: 0.5,
+                            tension: 0.4,
                             fill: false
                         }
                     ]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     scales: {
                         y: {
                             title: {
                                 display: true,
                                 text: 'Valor',
                                 font: {
-                                    size: 12,
+                                    size: 13,
                                     weight: 'bold'
                                 }
                             },
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
+                                color: 'rgba(0, 0, 0, 0.06)'
                             }
                         },
                         x: {
@@ -2003,12 +2043,12 @@ result = process_excel(data)
                                 display: true,
                                 text: 'Índice',
                                 font: {
-                                    size: 12,
+                                    size: 13,
                                     weight: 'bold'
                                 }
                             },
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
+                                color: 'rgba(0, 0, 0, 0.06)'
                             },
                             ticks: {
                                 maxTicksLimit: 15
@@ -2020,7 +2060,7 @@ result = process_excel(data)
                             position: 'top',
                             labels: {
                                 font: {
-                                    size: 12
+                                    size: 13
                                 }
                             }
                         },
@@ -2039,7 +2079,7 @@ result = process_excel(data)
                         mode: 'index'
                     },
                     animation: {
-                        duration: 200,
+                        duration: 300,
                         easing: 'easeOutQuart'
                     }
                 }
